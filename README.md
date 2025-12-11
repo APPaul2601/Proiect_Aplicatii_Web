@@ -1,434 +1,344 @@
-# 🔧 Git Commands Reference
+# 🏰 Castle Clicker - Incremental Game
 
-**Keep this handy during development!**
+A **simple clicker game** where you progress by clicking, unlock upgrades, and build structures to help you reach the ultimate goal: completing your castle with 100 million clicks!
 
 ---
 
-## **FIRST TIME SETUP (Do This Once)**
+## **Quick Start**
 
-### Clone the repository (first time only)
+### 1️⃣ **Clone & Install**
 ```bash
-git clone <repository-url>
+git clone <repo-url>
 cd Proiect_Aplicatii_Web
+
+# Backend
+cd backend
+npm install
+
+# Frontend (in new terminal)
+cd forntend
+npm install
 ```
 
-### Configure your git (first time only)
+### 2️⃣ **Create .env file**
+In the `backend` folder, create a `.env` file:
+```
+MONGO_URI=mongodb://localhost:27017/castleclicker
+PORT=5000
+JWT_SECRET=your-secret-key-here
+```
+
+### 3️⃣ **Start Everything**
+You need **3 terminals** running:
+
+**Terminal 1 - MongoDB:**
 ```bash
-git config --global user.name "Your Name"
-git config --global user.email "your.email@example.com"
+mongod
+```
+
+**Terminal 2 - Backend:**
+```bash
+cd backend
+npm start
+```
+
+**Terminal 3 - Frontend:**
+```bash
+cd forntend
+npm start
+```
+
+Then open: **http://localhost:3000**
+
+---
+
+## **How to Play**
+
+1. **Register** - Create an account
+2. **Login** - Log in with your credentials
+3. **Click the Castle** - Each click deals damage (upgradeable)
+4. **Earn Resources** - Gain gold by clicking
+5. **Buy Upgrades** - Increase click power with upgrades
+6. **Buy Buildings** - Unlock buildings for passive income
+7. **Reach 100M** - Complete your castle to win! 🎉
+
+---
+
+## **Game Features**
+
+✅ User Registration & Login  
+✅ Click System (Click → Deal Damage → Earn Resources)  
+✅ Click Power Upgrades (Boost your damage per click)  
+✅ Building System (Generate passive resources)  
+✅ Resource Management (Gold, Wood, Stone, Wheat)  
+✅ Castle Completion Goal (100,000,000 clicks to win)  
+✅ Data Persistence (Progress saved in MongoDB)  
+✅ Responsive UI  
+
+---
+
+## **Team Assignments (4 People)**
+
+| Person | Role | Responsibility |
+|--------|------|-----------------|
+| **Person 1** | Backend - Click System | Click endpoint, damage calculation, resource gain |
+| **Person 2** | Backend - Shop System | Building & upgrade models, buy endpoints, validation |
+| **Person 3** | Frontend - Game UI | Game page layout, click button, progress bar, shop UI |
+| **Person 4** | Backend/Testing | Seed data, route setup, final testing, polish |
+
+👉 **See MVP_CLICKER_2PERSON_PLAN.md for detailed 1-day sprint breakdown**
+
+---
+
+## **Game Progression**
+
+```
+Start: Castle 0 / 100,000,000 clicks
+  ↓
+Click continuously → Gain gold
+  ↓
+Buy Upgrades → Increase click power (1 → 2 → 3...)
+  ↓
+Buy Buildings → Generate passive resources
+  ↓
+Keep clicking with increased power
+  ↓
+Reach 100M clicks → CASTLE COMPLETED! YOU WIN! 🎉
 ```
 
 ---
 
-## **DAILY WORKFLOW**
+## **Tech Stack**
 
-### **Start of Day: Pull Latest Code**
-```bash
-# Make sure you're on main branch
-git checkout main
+- **Frontend:** React, Axios, CSS
+- **Backend:** Node.js, Express, JWT
+- **Database:** MongoDB + Mongoose
+- **Authentication:** JWT Tokens
 
-# Get latest changes from GitHub
-git pull origin main
+---
+
+## **Database Collections**
+
+- **User** - User accounts with credentials
+- **Progress** - Player game state (castle completion, resources, upgrades)
+- **Building** - Game content (farm, mine, quarry, lumbermill)
+- **Upgrade** - Game content (sharper sword, stronger swing, magic enchantment)
+
+---
+
+## **Project Structure**
+
 ```
-
-### **Create Feature Branch (for each feature)**
-```bash
-# Create a new branch for your work
-git checkout -b mvp-clicker
-
-# Or shorter version
-git checkout -b <branch-name>
-```
-
-**Branch naming examples:**
-```
-mvp-clicker
-feature/click-system
-fix/api-endpoint
-person1-backend
-person2-frontend
+Proiect_Aplicatii_Web/
+├── backend/
+│   ├── models/
+│   │   ├── User.js
+│   │   ├── Progress.js (NEW)
+│   │   ├── Building.js (NEW)
+│   │   └── Upgrade.js (NEW)
+│   │
+│   ├── controllers/
+│   │   ├── authController.js
+│   │   ├── progressController.js (NEW)
+│   │   └── shopController.js (NEW)
+│   │
+│   ├── routes/
+│   │   ├── authRoutes.js
+│   │   ├── progressRoutes.js (NEW)
+│   │   └── shopRoutes.js (NEW)
+│   │
+│   ├── middleware/
+│   │   └── authMiddleware.js
+│   │
+│   ├── config/
+│   │   └── db.js
+│   │
+│   ├── server.js
+│   └── .env (create this)
+│
+├── forntend/
+│   ├── src/
+│   │   ├── pages/
+│   │   │   ├── Login.jsx
+│   │   │   ├── Register.jsx
+│   │   │   └── GameUI.jsx (UPDATED)
+│   │   │
+│   │   ├── services/
+│   │   │   └── api.js
+│   │   │
+│   │   ├── App.jsx
+│   │   └── index.js
+│   │
+│   └── package.json
+│
+├── SETUP.md
+├── DATABASESCHEMA.md
+├── MVP_CLICKER_2PERSON_PLAN.md
+├── GIT_COMMANDS.md
+├── TASKS.md
+└── README.md (this file)
 ```
 
 ---
 
-## **DURING DEVELOPMENT**
+## **API Endpoints**
 
-### **Check what files changed**
-```bash
-git status
-```
+### Authentication
+- `POST /api/auth/register` - Create new account
+- `POST /api/auth/login` - Login user
 
-### **See changes in detail**
-```bash
-git diff
-```
+### Player Progress
+- `GET /api/player` - Get player state
+- `POST /api/player/click` - Click castle, increase progress
+- `POST /api/player/buy-upgrade` - Purchase upgrade
+- `POST /api/player/buy-building` - Purchase building
 
-### **Add files to staging**
-```bash
-# Add specific file
-git add backend/controllers/progressController.js
-
-# Add all changes
-git add .
-
-# Add all files of one type
-git add backend/
-git add forntend/
-```
-
-### **Commit your work (DO THIS OFTEN!)**
-```bash
-# Commit with message
-git commit -m "Person 1: Create Progress model and click endpoint"
-
-# Good commit messages:
-git commit -m "Add castle click endpoint"
-git commit -m "Create Building and Upgrade models"
-git commit -m "Update GameUI with click button"
-git commit -m "Fix: API not connecting to backend"
-git commit -m "Polish: Add progress bar styling"
-```
-
-### **Push to GitHub**
-```bash
-# Push your branch
-git push origin mvp-clicker
-
-# Or if it's new
-git push -u origin mvp-clicker
-```
+### Shop
+- `GET /api/buildings` - Get all building types
+- `GET /api/upgrades` - Get all upgrade types
 
 ---
 
-## **CHECKING YOUR WORK**
+## **Key Game Numbers**
 
-### **See commit history**
-```bash
-# See last 10 commits on current branch
-git log --oneline
-
-# See all branches and commits
-git log --oneline --graph --all
-
-# Exit log view
-press q
-```
-
-### **See what's different between branches**
-```bash
-git diff main mvp-clicker
-```
-
-### **Check which branch you're on**
-```bash
-git branch
-
-# Shows all branches with * on current
-# Example output:
-# main
-# * mvp-clicker
-# person1-backend
-```
+| Item | Value |
+|------|-------|
+| Castle Goal | 100,000,000 clicks |
+| Starting Click Power | 1 damage per click |
+| Max Click Power | Unlimited (scales with upgrades) |
+| Building Types | 4 (farm, mine, quarry, lumbermill) |
+| Upgrade Types | 3 (sharper sword, stronger swing, magic enchantment) |
 
 ---
 
-## **SWITCHING BRANCHES**
+## **Development Phases**
 
-### **Switch to different branch**
-```bash
-git checkout main
-git checkout mvp-clicker
-```
+### Phase 1: MVP (1 Day)
+✅ Click system working  
+✅ Upgrades functional  
+✅ Buildings system  
+✅ Win condition (100M clicks)  
 
-### **Create AND switch in one command**
-```bash
-git checkout -b new-feature-name
-```
+### Phase 2: Polish (Week 2)
+- Passive income from buildings
+- Better UI animations
+- Sound effects
+- Achievements
+- Leaderboards
 
----
-
-## **MERGING (End of Sprint)**
-
-### **Merge branch into main**
-```bash
-# 1. Switch to main
-git checkout main
-
-# 2. Make sure main is up to date
-git pull origin main
-
-# 3. Merge your branch
-git merge mvp-clicker
-
-# 4. Push merged code to GitHub
-git push origin main
-```
-
-### **Delete a branch (after merging)**
-```bash
-# Delete locally
-git branch -d mvp-clicker
-
-# Delete on GitHub
-git push origin --delete mvp-clicker
-```
+### Phase 3: Advanced (Week 3+)
+- Workers (automatic resource gathering)
+- Towers (auto-defense system)
+- Waves/Combat system
+- Prestige/Reset mechanics
 
 ---
 
-## **COMMON SCENARIOS**
+## **Getting Started with Development**
 
-### **Scenario 1: You forgot to push your work**
-```bash
-# Check what you have locally
-git status
+### 1. Read the Documents
+1. `SETUP.md` - Detailed setup guide
+2. `DATABASESCHEMA.md` - Database structure
+3. `MVP_CLICKER_2PERSON_PLAN.md` - 1-day sprint plan
+4. `GIT_COMMANDS.md` - Git workflow reference
 
-# Push it now
-git push origin mvp-clicker
-```
+### 2. Follow the 1-Day Sprint
+- See `MVP_CLICKER_2PERSON_PLAN.md`
+- Covers timing, responsibilities, and testing
 
-### **Scenario 2: Someone else pushed changes**
-```bash
-# Update your local code
-git pull origin main
-```
-
-### **Scenario 3: You made a mistake in your last commit**
-```bash
-# Change the commit message
-git commit --amend -m "New message"
-
-# Add more files to last commit
-git add .
-git commit --amend --no-edit
-
-# Then force push (careful!)
-git push origin mvp-clicker --force
-```
-
-### **Scenario 4: You want to see what the other person did**
-```bash
-# See their commits
-git log --oneline origin/person2-frontend
-
-# See what they changed
-git diff main origin/person2-frontend
-```
-
-### **Scenario 5: MERGE CONFLICT (Both edited same file)**
-```bash
-# Pull to see the conflict
-git pull origin main
-
-# Open the conflicting file and manually fix it
-# Look for sections like:
-# <<<<<<< HEAD
-# your code
-# =======
-# their code
-# >>>>>>> branch-name
-
-# After fixing, add and commit
-git add .
-git commit -m "Fix: Resolve merge conflict"
-git push origin mvp-clicker
-```
-
----
-
-## **TEAM WORKFLOW (2 PEOPLE)**
-
-### **At Start of Day:**
-```bash
-# Both do this
-git checkout main
-git pull origin main
-```
-
-### **Person 1 starts backend:**
-```bash
-git checkout -b mvp-backend
-# ... code ...
-git add backend/
-git commit -m "Person 1: Backend endpoints"
-git push origin mvp-backend
-```
-
-### **Person 2 starts frontend (parallel):**
-```bash
-git checkout -b mvp-frontend
-# ... code ...
-git add forntend/
-git commit -m "Person 2: Game UI"
-git push origin mvp-frontend
-```
-
-### **At End of Day (Merge both):**
-```bash
-# Person 1
-git checkout main
-git pull origin main
-git merge mvp-backend
-git push origin main
-
-# Person 2
-git checkout main
-git pull origin main  # Get Person 1's changes
-git merge mvp-frontend
-git push origin main
-```
-
----
-
-## **HELPFUL ALIASES (Optional)**
-
-Add these to make commands faster:
-
-```bash
-# Add these to your .gitconfig or use them directly
-
-# See status short version
-git status -s
-
-# Quick log
-git log --oneline -10
-
-# See all branches
-git branch -a
-
-# Quick checkout to main
-git checkout main
-
-# Pull and update
-git pull origin main
-```
-
----
-
-## **EMERGENCY COMMANDS**
-
-### **UNDO: Remove uncommitted changes**
-```bash
-# Discard changes in one file
-git checkout -- backend/models/Progress.js
-
-# Discard ALL changes
-git reset --hard HEAD
-# WARNING: This deletes all unsaved work!
-```
-
-### **UNDO: Remove a commit**
-```bash
-# Undo last commit (keep changes)
-git reset --soft HEAD~1
-
-# Undo last commit (delete changes)
-git reset --hard HEAD~1
-# WARNING: This deletes the commit!
-```
-
-### **See deleted commits (last hope!)**
-```bash
-git reflog
-```
-
----
-
-## **IMPORTANT RULES**
-
-✅ **DO:**
-- Commit often (every 30 minutes of work)
+### 3. Commit and Push Often
+- See `GIT_COMMANDS.md` for git workflow
+- Commit every 30 minutes of work
 - Push before end of day
-- Pull before starting work
-- Use clear commit messages
-- Use feature branches (never push directly to main)
 
-❌ **DON'T:**
-- `git push --force` (unless you know what you're doing)
-- Commit without testing
-- Push broken code
-- Edit main branch directly
-- Ignore merge conflicts
+### 4. Test Continuously
+- Test endpoints with Postman
+- Test UI in browser
+- Test full game loop
 
 ---
 
-## **Commit Message Examples**
+## **Team Communication**
 
-**Good:**
-```
-git commit -m "Add click endpoint for castle"
-git commit -m "Create Building and Upgrade models"
-git commit -m "Connect frontend to API"
-git commit -m "Fix: Castle completion not saving"
-git commit -m "Add progress bar UI"
-```
+During the 1-day sprint:
 
-**Bad:**
-```
-git commit -m "stuff"
-git commit -m "fix"
-git commit -m "update"
-git commit -m "asdfjkl"
-```
-
-**Format:** `[Action]: [What you did]`
+| Time | Activity |
+|------|----------|
+| 9:00 AM | Team sync (15 min) - Review plan together |
+| 10:00 AM | Start coding |
+| 12:00 PM | Lunch |
+| 1:00 PM | Integration & testing |
+| 3:00 PM | Bug fixes |
+| 5:00 PM | Final testing & push to GitHub |
 
 ---
 
-## **QUICK REFERENCE CARD**
+## **Success Criteria**
 
+By end of day:
+
+✅ Can register and login  
+✅ Can click castle  
+✅ Can see progress bar  
+✅ Can buy upgrades  
+✅ Can buy buildings  
+✅ Resources display correctly  
+✅ Can reach 100M and win  
+✅ Data persists on refresh  
+✅ No console errors  
+✅ Code committed to GitHub  
+
+---
+
+## **If You Get Stuck**
+
+1. **Can't run the project?** → Check `SETUP.md`
+2. **Don't know what to build?** → Check `MVP_CLICKER_2PERSON_PLAN.md`
+3. **Git issues?** → Check `GIT_COMMANDS.md`
+4. **Database questions?** → Check `DATABASESCHEMA.md`
+5. **Still stuck?** → Add a comment in the code or ask the team
+
+---
+
+## **Quick Reference**
+
+### To Run Locally:
+```bash
+# Terminal 1: MongoDB
+mongod
+
+# Terminal 2: Backend
+cd backend && npm start
+
+# Terminal 3: Frontend
+cd forntend && npm start
+
+# Then visit http://localhost:3000
 ```
-SETUP:
-git clone <url>
-git config --global user.name "Name"
 
-DAILY:
-git checkout main
-git pull origin main
-git checkout -b feature-name
-
-WORKING:
-git status
+### To Push Code:
+```bash
 git add .
-git commit -m "message"
-git push origin feature-name
+git commit -m "Your message here"
+git push origin your-branch
+```
 
-END OF DAY:
+### To Merge to Main:
+```bash
 git checkout main
 git pull origin main
-git merge feature-name
+git merge your-branch
 git push origin main
-
-EMERGENCY:
-git log --oneline
-git diff
-git reset --hard HEAD
 ```
 
 ---
 
-## **If You're Stuck**
+## **Let's Build This! 🚀**
 
-| Problem | Command |
-|---------|---------|
-| Don't know what changed? | `git status` |
-| See detailed changes? | `git diff` |
-| See commit history? | `git log --oneline` |
-| What branch am I on? | `git branch` |
-| Someone else's changes? | `git pull origin main` |
-| Want to undo? | `git reset --soft HEAD~1` |
-| EVERYTHING is broken? | `git reset --hard origin/main` |
+This is a fun, achievable 1-day project. By 5 PM today, you'll have:
+- ✅ A playable clicker game
+- ✅ Working click system
+- ✅ Upgrade & building shops
+- ✅ A working MVP
 
----
-
-## **Ask These Questions:**
-
-1. **What branch am I on?** → `git branch`
-2. **What did I change?** → `git status`
-3. **Is it on GitHub?** → `git log --oneline`
-4. **Did they push changes?** → `git pull origin main`
-
----
-
-**Save this file and refer to it anytime you need git help!** 📚
-
-Print it out or keep it in a tab. **You've got this!** 💪
+**Let's go!** 💪
