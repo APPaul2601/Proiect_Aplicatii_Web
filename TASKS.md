@@ -50,13 +50,39 @@
 - [ ] Add CSS/styling for better game appearance
 - [ ] Create `ActionBar.jsx` for ability buttons
 - [ ] Add responsive design for mobile
-- [ ] Create sound effects (optional)
+- [ ] Create smooth animations
 
 ### Files to create:
 - `forntend/src/components/MonsterDisplay.jsx`
 - `forntend/src/components/WaveInfo.jsx`
 - `forntend/src/components/ActionBar.jsx`
-- `forntend/src/styles/game.css` (if needed)
+- `forntend/src/styles/game.css`
+
+---
+
+## **Person 4: Building/Shop System**
+
+### Tasks:
+- [ ] Create `Building.js` model (type, cost, effect, level)
+- [ ] Create `buildingController.js` with endpoints:
+  - `GET /api/buildings` - Get all available buildings
+  - `POST /api/buildings/buy` - Buy/upgrade a building
+  - `GET /api/player/buildings` - Get player's buildings
+- [ ] Implement cost scaling (buildings get more expensive to upgrade)
+- [ ] Buildings increase damage, AP regen, or resource generation
+- [ ] Create `ShopUI.jsx` component to display buildings
+
+### Files to create:
+- `backend/models/Building.js`
+- `backend/controllers/buildingController.js`
+- `backend/routes/buildingRoutes.js`
+- `forntend/src/components/ShopUI.jsx`
+
+### Building Ideas:
+- **Archer Tower:** +1 damage per click
+- **Training Grounds:** +1 max action points
+- **Farm:** +1 food/second
+- **Mine:** +1 gold/second
 
 ---
 
@@ -68,6 +94,32 @@
 - [ ] Game loop works smoothly
 - [ ] No memory leaks
 - [ ] Code follows consistent naming conventions
+- [ ] All 4 systems work together seamlessly
+
+---
+
+## **Git Workflow**
+
+1. Create a **branch** for your feature:
+   ```bash
+   git checkout -b person1-action-points
+   git checkout -b person2-waves
+   git checkout -b person3-ui
+   git checkout -b person4-buildings
+   ```
+
+2. **Commit regularly:**
+   ```bash
+   git add .
+   git commit -m "Add action points regeneration"
+   ```
+
+3. **Push your branch:**
+   ```bash
+   git push origin person1-action-points
+   ```
+
+4. **Create Pull Request** on GitHub for review
 
 ---
 
@@ -77,3 +129,4 @@
 - Comment your code with explanations
 - Make small commits with clear messages
 - Test your changes before pushing
+- Do code reviews for other team members
