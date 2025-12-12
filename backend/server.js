@@ -38,6 +38,15 @@ app.use("/api/auth", require("./routes/authRoutes"));
 //          POST /api/player
 app.use("/api/player", require("./routes/progressRoutes"));
 
+
+const shopRoutes = require("./routes/shopRoutes");
+app.use("/api", shopRoutes);
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server pornit pe http://localhost:${PORT}`));
+
+
+
 // ===== START SERVER =====
 // Listen on PORT (from .env or default 5000)
 const PORT = process.env.PORT || 5000;
@@ -46,3 +55,4 @@ app.listen(PORT, () => {
   console.log(`MongoDB URI: ${process.env.MONGO_URI}`);
   console.log("Ready to receive requests!");
 });
+
