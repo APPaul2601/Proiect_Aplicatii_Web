@@ -9,7 +9,8 @@
 const express = require("express"); // Web framework
 const connectDB = require("./config/db"); // MongoDB connection
 const cors = require("cors"); // Cross-origin requests
-require("dotenv").config(); // Load .env variables
+const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, ".env") }); // Load .env variables
 
 // ===== CREATE EXPRESS APP =====
 const app = express();
@@ -38,14 +39,10 @@ app.use("/api/auth", require("./routes/authRoutes"));
 //          POST /api/player
 app.use("/api/player", require("./routes/progressRoutes"));
 
-
+// ===== SHOP ROUTES =====
+// Get buildings and upgrades catalog
 const shopRoutes = require("./routes/shopRoutes");
 app.use("/api", shopRoutes);
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server pornit pe http://localhost:${PORT}`));
-
-
 
 // ===== START SERVER =====
 // Listen on PORT (from .env or default 5000)
@@ -55,4 +52,3 @@ app.listen(PORT, () => {
   console.log(`MongoDB URI: ${process.env.MONGO_URI}`);
   console.log("Ready to receive requests!");
 });
-
