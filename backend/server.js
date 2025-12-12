@@ -13,5 +13,10 @@ app.use(express.json());
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/player', require('./routes/progressRoutes')); // pentru progres + stats
 
+const shopRoutes = require("./routes/shopRoutes");
+app.use("/api", shopRoutes);
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server pornit pe http://localhost:${PORT}`));
+
+
