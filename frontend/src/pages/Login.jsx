@@ -1,59 +1,49 @@
-import React, { useState } from "react";
-import API, { setToken } from "../services/api.js";
+// Login Page - Displays login form with username/password fields and link to registration
+// On successful login, navigates to the main game page
+import React from "react";
 import { useNavigate } from "react-router-dom";
+import LoginForm from "../components/auth/LoginForm";
 
 function Login() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-
-    try {
-      const res = await API.post("/login", { username, password });
-      localStorage.setItem("token", res.data.token);
-      setToken(res.data.token); // SET TOKEN PENTRU API CALLS
-      navigate("/game");
-    } catch (err) {
-      console.error("Full error:", err.response?.data);
-      if (err.response && err.response.data && err.response.data.error) {
-        setError(err.response.data.error);
-      } else {
-        setError("Eroare la login");
-      }
-    }
+  const handleLoginSuccess = () => {
+    navigate("/game", { replace: true });
   };
 
   return (
-    <div style={{ maxWidth: "400px", margin: "50px auto" }}>
-      <h2>Login</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Username:</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit" style={{ marginTop: "10px" }}>
-          Login
-        </button>
-      </form>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "100vh",
+        backgroundColor: "#f5f5f5",
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: "white",
+          padding: "40px",
+          borderRadius: "8px",
+          boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+        }}
+      >
+        <h1 style={{ textAlign: "center", marginBottom: "30px" }}>
+          ⚔️ Castle Clicker
+        </h1>
+        <LoginForm onLoginSuccess={handleLoginSuccess} />
+        <p style={{ textAlign: "center", marginTop: "20px", color: "#666" }}>
+          Don't have an account?{" "}
+          <a
+            href="/register"
+            style={{ color: "#3498db", textDecoration: "none" }}
+          >
+            Register here
+          </a>
+        </p>
+      </div>
     </div>
   );
 }

@@ -1,57 +1,47 @@
-import React, { useState } from 'react';
-import API from '../services/api.js';
-import { useNavigate } from 'react-router-dom';
+// Register Page - Displays registration form with username/password fields and link to login
+// On successful registration, navigates to the login page
+
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import RegisterForm from "../components/auth/RegisterForm";
 
 function Register() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-
-    try {
-      // Trimite doar username și password
-      const res = await API.post('/register', { username, password });
-      console.log(res.data);
-      navigate('/login'); // redirect după înregistrare
-     } catch (err) {
-      console.error('Full error:', err.response?.data);
-      if (err.response && err.response.data && err.response.data.error) {
-        setError(err.response.data.error);
-      } else {
-        setError('Eroare la înregistrare');
-      }
-    }
+  const handleRegisterSuccess = () => {
+    navigate("/login", { replace: true });
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto' }}>
-      <h2>Register</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Username:</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit" style={{ marginTop: '10px' }}>Register</button>
-      </form>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "100vh",
+        backgroundColor: "#f5f5f5",
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: "white",
+          padding: "40px",
+          borderRadius: "8px",
+          boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+        }}
+      >
+        <h1 style={{ textAlign: "center", marginBottom: "30px" }}>
+          ⚔️ Castle Clicker
+        </h1>
+        <RegisterForm onRegisterSuccess={handleRegisterSuccess} />
+        <p style={{ textAlign: "center", marginTop: "20px", color: "#666" }}>
+          Already have an account?{" "}
+          <a href="/login" style={{ color: "#3498db", textDecoration: "none" }}>
+            Login here
+          </a>
+        </p>
+      </div>
     </div>
   );
 }
