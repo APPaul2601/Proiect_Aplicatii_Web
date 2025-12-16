@@ -23,7 +23,7 @@ npm install
 ### 2️⃣ **Environment Setup**
 The `.env` file should already be in the `backend` folder with:
 ```
-MONGO_URI=mongodb+srv://Proiect:Proiect1234@clickergame-cluster.smy24sp.mongodb.net/clickergame?retryWrites=true&w=majority
+MONGO_URI=mongodb+srv://GET_NAME_FROM_ME:GET_PASSWORD_FROM_ME@clickergame-cluster.smy24sp.mongodb.net/clickergame?retryWrites=true&w=majority
 JWT_SECRET=your_jwt_secret_key_here
 ```
 (MongoDB Atlas is already configured)
