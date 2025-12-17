@@ -1,10 +1,13 @@
 // Building Clicker Buttons - Grid of 4 buttons for collecting resources from different buildings
 // Props: onClickBuilding (function), disabled (boolean)
 
-import React from "react";
-import { collectResource, clickCastle } from "../../api/playerAPI";
+import React, { useState } from "react";
+import { clickCastle } from "../../api/playerAPI";
+import { collectResource } from "../../api/resourceAPI";
 
 const BuildingClickerButtons = ({ onClickBuilding, disabled = false }) => {
+  const [loading, setLoading] = useState(false);
+
   // Use backend canonical building types
   const buildings = [
     { type: "castle", icon: "🏰", label: "Castle" },
@@ -14,24 +17,43 @@ const BuildingClickerButtons = ({ onClickBuilding, disabled = false }) => {
   ];
 
   const handleClick = async (buildingType) => {
-    if (disabled) return;
+    console.log("🖱️ Button clicked:", buildingType);
+    
+    if (disabled || loading) {
+      console.log("❌ Button disabled or loading");
+      return;
+    }
+
     try {
+      setLoading(true);
+      console.log("📤 Sending request for:", buildingType);
+
       let result;
       if (buildingType === "castle") {
+        console.log("💰 Calling clickCastle()");
         result = await clickCastle();
       } else {
+        console.log("📦 Calling collectResource()");
         result = await collectResource(buildingType);
       }
 
-      // Normalize returned shape: either { progress } or progress
-      const progress = result && result.progress ? result.progress : result;
+      console.log("✅ API Response:", result);
+      const responseData = result && result.data ? result.data : result;
+      console.log("📊 Normalized data:", responseData);
 
-      if (onClickBuilding) onClickBuilding(progress);
+      // ⭐ FIX: AWAIT the callback and close loading AFTER it completes
+      if (onClickBuilding && typeof onClickBuilding === 'function') {
+        console.log("🔄 Calling onClickBuilding callback NOW");
+        await onClickBuilding();  // ← AWAIT HERE - don't pass data, it will fetch fresh
+        console.log("✅ Callback finished, enabling buttons");
+      }
+
+      setLoading(false);
     } catch (err) {
-      console.error(
-        "Error collecting resource/clicking castle:",
-        err.response?.data || err.message || err
-      );
+      console.error("❌ FULL ERROR OBJECT:", err);
+      console.error("❌ Error message:", err.message);
+      console.error("❌ Error response:", err.response);
+      setLoading(false);
     }
   };
 
@@ -48,30 +70,31 @@ const BuildingClickerButtons = ({ onClickBuilding, disabled = false }) => {
         <button
           key={building.type}
           onClick={() => handleClick(building.type)}
-          disabled={disabled}
+          disabled={disabled || loading}
           style={{
             padding: "15px",
             fontSize: "16px",
             fontWeight: "bold",
-            backgroundColor: disabled ? "#bdc3c7" : "#3498db",
+            backgroundColor: disabled || loading ? "#bdc3c7" : "#3498db",
             color: "white",
             border: "none",
             borderRadius: "8px",
-            cursor: disabled ? "not-allowed" : "pointer",
+            cursor: disabled || loading ? "not-allowed" : "pointer",
             transition: "all 0.3s ease",
-            transform: disabled ? "scale(1)" : "scale(1)",
+            opacity: disabled || loading ? 0.6 : 1,
           }}
           onMouseEnter={(e) => {
-            if (!disabled) e.target.style.backgroundColor = "#2980b9";
+            if (!disabled && !loading) e.target.style.backgroundColor = "#2980b9";
           }}
           onMouseLeave={(e) => {
-            if (!disabled) e.target.style.backgroundColor = "#3498db";
+            if (!disabled && !loading) e.target.style.backgroundColor = "#3498db";
           }}
         >
           <div style={{ fontSize: "24px", marginBottom: "5px" }}>
             {building.icon}
           </div>
           {building.label}
+          {loading && " ..."}
         </button>
       ))}
     </div>

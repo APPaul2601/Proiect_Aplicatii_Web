@@ -57,22 +57,24 @@ function GameUI() {
       />
 
       <div style={styles.topSection}>
-        <div>
-          <ResourcesDisplay resources={player.resources} />
-          <ProgressBar progress={player.castleProgress} />
-        </div>
+        {/* ⭐ RESOURCES DISPLAY - Top Bar */}
+        <ResourcesDisplay resources={player.resources} />
+
+        {/* ⭐ PROGRESS BAR - Below Resources */}
+        <ProgressBar progress={player.castleProgress} />
       </div>
 
       <div style={styles.contentContainer}>
         <div style={styles.leftColumn}>
-          <h3 style={{ marginBottom: "15px" }}>Buildings</h3>
+          <h3 style={{ marginBottom: "15px" }}>🏗️ Buildings</h3>
           <BuildingClickerButtons
-            onClickBuilding={() => fetchPlayerData()}
+            onClickBuilding={fetchPlayerData}  // ← This should trigger refresh
             disabled={false}
           />
         </div>
 
         <div style={styles.rightColumn}>
+          <h3 style={{ marginBottom: "15px" }}>⭐ Upgrades</h3>
           <UpgradesShop
             upgrades={upgrades}
             playerUpgrades={player.upgrades || []}

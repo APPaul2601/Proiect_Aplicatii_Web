@@ -13,9 +13,14 @@ export const useGameData = () => {
       setLoading(true);
       setError(null);
       const response = await getPlayerData();
-      setPlayer(response.data);
+      console.log("📥 useGameData - Full response:", response.data); // ← DEBUG
+      console.log(
+        "📥 useGameData - Setting player to:",
+        response.data.progress
+      ); // ← DEBUG
+      setPlayer(response.data.progress); // ← FIX: Extract progress from response
     } catch (err) {
-      console.error("Error fetching player data:", err);
+      console.error("❌ Error fetching player data:", err);
       setError(err.response?.data?.message || "Failed to load game data");
     } finally {
       setLoading(false);

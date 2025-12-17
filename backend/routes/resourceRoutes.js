@@ -6,7 +6,7 @@
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middleware/authMiddleware");
-const { collectResource } = require("../controllers/resourceController");
+const { collectResource } = require("../controllers/progressController");
 
 // POST /api/resources/collect - Collect resources from a building
 // Requires: token, buildingType, amount
