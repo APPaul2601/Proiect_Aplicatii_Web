@@ -2,14 +2,38 @@
 // Props: onClickBuilding (function), disabled (boolean)
 
 import React from "react";
+import { collectResource, clickCastle } from "../../api/playerAPI";
 
 const BuildingClickerButtons = ({ onClickBuilding, disabled = false }) => {
+  // Use backend canonical building types
   const buildings = [
-    { type: "farm", icon: "🌾", label: "Farm" },
+    { type: "castle", icon: "🏰", label: "Castle" },
     { type: "quarry", icon: "⛏️", label: "Quarry" },
-    { type: "forest", icon: "🌲", label: "Forest" },
-    { type: "goldmine", icon: "⛏️", label: "Gold Mine" },
+    { type: "lumber_yard", icon: "🌲", label: "Lumber Yard" },
+    { type: "wheat_field", icon: "🌾", label: "Wheat Field" },
   ];
+
+  const handleClick = async (buildingType) => {
+    if (disabled) return;
+    try {
+      let result;
+      if (buildingType === "castle") {
+        result = await clickCastle();
+      } else {
+        result = await collectResource(buildingType);
+      }
+
+      // Normalize returned shape: either { progress } or progress
+      const progress = result && result.progress ? result.progress : result;
+
+      if (onClickBuilding) onClickBuilding(progress);
+    } catch (err) {
+      console.error(
+        "Error collecting resource/clicking castle:",
+        err.response?.data || err.message || err
+      );
+    }
+  };
 
   return (
     <div
@@ -23,7 +47,7 @@ const BuildingClickerButtons = ({ onClickBuilding, disabled = false }) => {
       {buildings.map((building) => (
         <button
           key={building.type}
-          onClick={() => onClickBuilding(building.type)}
+          onClick={() => handleClick(building.type)}
           disabled={disabled}
           style={{
             padding: "15px",
