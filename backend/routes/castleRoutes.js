@@ -31,6 +31,7 @@ router.post("/click", authMiddleware, clickCastle);
 // What it does: Buy upgrade, charge resources, apply effect (click power boost)
 router.post("/buy-upgrade", authMiddleware, buyUpgrade);
 
+
+
 // Export routes to be used in server.js
 module.exports = router;
-
