@@ -55,6 +55,8 @@ function GameUI() {
     }
   };
 
+  
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/login");
@@ -97,6 +99,7 @@ function GameUI() {
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
+<<<<<<< Updated upstream
       {playerData && (
         <>
           {/* Castle Stats */}
@@ -183,6 +186,19 @@ function GameUI() {
           )}
         </>
       )}
+=======
+        <div style={styles.rightColumn}>
+          <h3 style={{ marginBottom: "15px" }}>⭐ Upgrades</h3>
+          {/* Pass purchase handler to UpgradesShop so it can trigger buys */}
+          <UpgradesShop
+            upgrades={upgrades}
+            playerUpgrades={player.upgrades || []}
+            playerResources={player.resources}
+            onUpgradePurchased={fetchPlayerData}
+          />
+        </div>
+      </div>
+>>>>>>> Stashed changes
     </div>
   );
 }
