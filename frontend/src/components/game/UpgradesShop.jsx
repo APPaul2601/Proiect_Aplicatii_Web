@@ -1,20 +1,23 @@
+
 // Upgrades Shop Component - Grid of available upgrades for purchase with affordability checks
+// Step 1: Integrate buyUpgrade API via handler from parent
+// Step 2: UI wiring for upgrade purchase (buy button, handler, disables)
+// Step 3: Owned state UI (disable, show '✓ Owned', fade card)
 
 import React from "react";
 
 function UpgradesShop({
-  upgrades = [],
-  playerUpgrades = [],
-  playerResources = { gold: 0, wood: 0, stone: 0, wheat: 0 },
-  onUpgradePurchased = () => {},
+  upgrades = [], // Step 1: List of upgrades from backend
+  playerUpgrades = [], // Step 3: List of owned upgrade IDs
+  playerResources = { gold: 0, wood: 0, stone: 0, wheat: 0 }, // Step 2: Used for affordability check
+  onUpgradePurchased = () => {}, // Step 1/2: Handler from parent to trigger purchase
 }) {
-  // Step 2: UI wiring for upgrade purchase
-  // - Receives purchase handler from parent (GameUI)
-  // - Handles buy button click and disables for owned/unaffordable upgrades
-  // - (Optional) Add pending state for async purchase
-  // Check if player can afford upgrade
+  // Step 2: Receives purchase handler from parent (GameUI)
+  // Step 2: Handles buy button click and disables for owned/unaffordable upgrades
+  // Step 2: (Optional) Add pending state for async purchase
+  // Step 2: Check if player can afford upgrade
   const canAfford = (upgrade) => {
-    // Safety check - if playerResources is undefined, return false
+    // Step 2: Check if player has enough resources for this upgrade
     if (!playerResources || !upgrade.cost) {
       return false;
     }
@@ -26,10 +29,10 @@ function UpgradesShop({
     );
   };
 
-  // Step 2: Check if upgrade is already owned
+  // Step 3: Check if upgrade is already owned (used to disable button and show owned state)
   const isOwned = (upgradeId) => playerUpgrades.includes(upgradeId);
 
-  // Step 2: Handle buy button click, call parent handler
+  // Step 2: Handle buy button click, call parent handler (triggers buyUpgrade API via parent)
   // (Optional: Add pending state here if you want to show loading per-upgrade)
   const handleBuyClick = async (upgrade) => {
     if (!canAfford(upgrade)) {
@@ -65,6 +68,7 @@ function UpgradesShop({
               <h4 style={styles.upgradeName}>{upgrade.name}</h4>
               <p style={styles.upgradeDesc}>{upgrade.description}</p>
               <div style={styles.costContainer}>
+                {/* Step 2: Show upgrade cost (affordability) */}
                 {upgrade.cost.gold > 0 && (
                   <span style={styles.cost}>💰 {upgrade.cost.gold}</span>
                 )}
@@ -79,6 +83,7 @@ function UpgradesShop({
                 )}
               </div>
               {/* Step 2: Buy button disables for owned/unaffordable upgrades */}
+              {/* Step 3: Show '✓ Owned' and fade card if owned */}
               <button
                 onClick={() => handleBuyClick(upgrade)}
                 disabled={!canAfford(upgrade) || isOwned(upgrade._id)}
@@ -91,6 +96,7 @@ function UpgradesShop({
                       : "pointer",
                 }}
               >
+                {/* Step 3: Show owned indicator on button */}
                 {isOwned(upgrade._id) ? "✓ Owned" : "Buy"}
               </button>
             </div>
