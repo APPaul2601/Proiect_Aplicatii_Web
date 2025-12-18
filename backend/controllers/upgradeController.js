@@ -18,6 +18,7 @@ const {
 // Body: { upgradeType: string }
 // What it does: Purchase upgrade, charge resources, apply effect
 exports.buyUpgrade = async (req, res) => {
+  console.log("buyUpgrade endpoint hit", req.body, req.userId);// print message and request data to backend everytime the endpoint is called
   try {
     const userId = req.userId;
     const { upgradeType } = req.body;
@@ -76,6 +77,7 @@ exports.buyUpgrade = async (req, res) => {
     // Step 8: Respond with updated progress object
     res.json(successResponse({ progress }, "Upgrade purchased successfully"));
   } catch (err) {
+    console.error("buyUpgrade error:", err);
     res.status(500).json(errorResponse(err.message, 500));
   }
 };

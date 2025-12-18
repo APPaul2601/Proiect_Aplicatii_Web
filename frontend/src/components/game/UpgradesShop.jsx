@@ -30,7 +30,7 @@ function UpgradesShop({
   };
 
   // Step 3: Check if upgrade is already owned (used to disable button and show owned state)
-  const isOwned = (upgradeId) => playerUpgrades.includes(upgradeId);
+  const isOwned = (upgradeType) => playerUpgrades.includes(upgradeType);
 
   // Step 2: Handle buy button click, call parent handler (triggers buyUpgrade API via parent)
   // (Optional: Add pending state here if you want to show loading per-upgrade)
@@ -39,13 +39,13 @@ function UpgradesShop({
       alert("Not enough resources!");
       return;
     }
-    if (isOwned(upgrade._id)) {
+    if (isOwned(upgrade.type)) {
       alert("Already owned!");
       return;
     }
     try {
       // Call the purchase handler from parent
-      await onUpgradePurchased(upgrade._id);
+      await onUpgradePurchased(upgrade.type);
     } catch (err) {
       console.error("Error purchasing upgrade:", err);
       alert("Failed to purchase upgrade");
@@ -59,10 +59,10 @@ function UpgradesShop({
         <div style={styles.upgradesGrid}>
           {upgrades.map((upgrade) => (
             <div
-              key={upgrade._id}
+              key={upgrade.type}
               style={{
                 ...styles.upgradeCard,
-                opacity: isOwned(upgrade._id) ? 0.5 : 1,
+                opacity: isOwned(upgrade.type) ? 0.5 : 1,
               }}
             >
               <h4 style={styles.upgradeName}>{upgrade.name}</h4>
@@ -86,18 +86,18 @@ function UpgradesShop({
               {/* Step 3: Show '✓ Owned' and fade card if owned */}
               <button
                 onClick={() => handleBuyClick(upgrade)}
-                disabled={!canAfford(upgrade) || isOwned(upgrade._id)}
+                disabled={!canAfford(upgrade) || isOwned(upgrade.type)}
                 style={{
                   ...styles.buyButton,
-                  opacity: !canAfford(upgrade) || isOwned(upgrade._id) ? 0.5 : 1,
+                  opacity: !canAfford(upgrade) || isOwned(upgrade.type) ? 0.5 : 1,
                   cursor:
-                    !canAfford(upgrade) || isOwned(upgrade._id)
+                    !canAfford(upgrade) || isOwned(upgrade.type)
                       ? "not-allowed"
                       : "pointer",
                 }}
               >
                 {/* Step 3: Show owned indicator on button */}
-                {isOwned(upgrade._id) ? "✓ Owned" : "Buy"}
+                {isOwned(upgrade.type) ? "✓ Owned" : "Buy"}
               </button>
             </div>
           ))}

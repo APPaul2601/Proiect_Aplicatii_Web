@@ -61,7 +61,7 @@ const progressSchema = new mongoose.Schema(
     // Example: [ { type: 'sharper_sword', level: 1 } ]
     upgrades: [
       {
-        type: String, // Upgrade type ('sharper_sword', etc)
+        type: { type: String, required: true }, // Upgrade type ('sharper_sword', etc)
         level: { type: Number, default: 1 }, // What level they own
       },
     ],
