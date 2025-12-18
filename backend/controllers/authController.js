@@ -5,84 +5,109 @@
 // Passwords are encrypted with bcrypt
 // Returns JWT tokens for authenticated requests
 
-const User = require("../models/User"); // User model
-const Progress = require("../models/Progress"); // Player progress
-const PlayerStats = require("../models/Building"); // Player stats
-const bcrypt = require("bcryptjs"); // Password encryption
-const jwt = require("jsonwebtoken"); // Token generation
+const User = require("../models/auth/User");
+const Progress = require("../models/game/Progress");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
 
-// ===== REGISTER: Create new user account =====
-// POST /api/auth/register
-// Body: { username, password }
-// Returns: { message, or error }
+// ===== REGISTER =====
 exports.register = async (req, res) => {
-  const { username, password } = req.body; // Get username & password from request
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
   try {
-    // STEP 1: Hash the password (encrypt it)
-    // Never store plain text passwords!
-    const salt = await bcrypt.genSalt(10); // Generate random salt
-    const hashedPassword = await bcrypt.hash(password, salt); // Hash password with salt
+    const { username, password } = req.body;
 
-    // STEP 2: Create and save the User
-    const newUser = new User({ username, password: hashedPassword });
-    await newUser.save(); // Save to database
+    // Validate inputs
+    if (!username || !password) {
+      await session.abortTransaction();
+      return res
+        .status(400)
+        .json({ message: "Username and password required" });
+    }
 
-    // STEP 3: Create Progress record automatically
-    // When user registers, create empty game state
+    // Check if user exists
+    const userExists = await User.findOne({ username }).session(session);
+    if (userExists) {
+      await session.abortTransaction();
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create user
+    const user = new User({
+      username,
+      password: hashedPassword,
+    });
+    await user.save({ session });
+
+    // ===== CREATE PROGRESS DOCUMENT =====
+    // Initialize player progress with stage 1
     const progress = new Progress({
-      user: newUser._id, // Link to this user
-      resources: { wood: 0, stone: 0, food: 0, gold: 0 }, // Start with 0 resources
-      clicks: 0, // Start with 0 clicks
-      castleHp: 100, // Start at full health
-      castleLevel: 1, // Start at level 1
+      user: user._id,
+      castleProgress: 0,
+      castleStage: 1,
+      castleCompleted: false,
+      clickPower: 1,
+      resources: {
+        gold: 0,
+        wood: 0,
+        stone: 0,
+        wheat: 0,
+      },
+      buildings: [],
+      upgrades: [],
+      unlockedUpgrades: ["sharper_sword", "stronger_swing"],
+      totalClicks: 0,
     });
-    await progress.save();
+    await progress.save({ session });
 
-    // STEP 4: Create PlayerStats record automatically
-    const stats = new PlayerStats({
-      user: newUser._id, // Link to this user
-      damagePerClick: 1, // Start with 1 damage per click
+    await session.commitTransaction();
+
+    res.json({
+      message: "User registered successfully",
+      user: { id: user._id, username },
     });
-    await stats.save();
-
-    // STEP 5: Return success message
-    res
-      .status(201) // 201 = Created
-      .json({ message: "User created! Progress and stats initialized." });
-  } catch (err) {
-    // If username already exists or other error
-    res.status(400).json({ error: err.message });
+  } catch (error) {
+    await session.abortTransaction();
+    console.error("Register error:", error.message);
+    res.status(500).json({ message: error.message });
+  } finally {
+    session.endSession();
   }
 };
 
-// ===== LOGIN: Authenticate user and return token =====
-// POST /api/auth/login
-// Body: { username, password }
-// Returns: { token } or { error }
+// ===== LOGIN =====
 exports.login = async (req, res) => {
-  const { username, password } = req.body; // Get username & password from request
-
   try {
-    // STEP 1: Find user in database
+    const { username, password } = req.body;
+
+    // Find user
     const user = await User.findOne({ username });
-    if (!user) return res.status(400).json({ error: "User nu exista" }); // User not found
+    if (!user) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
 
-    // STEP 2: Check if password is correct
-    // Compare plain text password with hashed password
-    const valid = await bcrypt.compare(password, user.password);
-    if (!valid) return res.status(400).json({ error: "Parola incorecta" }); // Wrong password
+    // Check password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
 
-    // STEP 3: Create JWT token (lasts 1 hour)
-    // Token includes user ID
-    // Frontend will send this token with every request
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h", // Token expires after 1 hour
+    // Create JWT token
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
     });
 
-    // STEP 4: Return token to user
-    res.json({ token }); // Frontend stores this token
-  } catch (err) {
-    res.status(500).json({ error: err.message }); // Server error
+    res.json({
+      message: "Login successful",
+      token,
+      user: { id: user._id, username: user.username },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };

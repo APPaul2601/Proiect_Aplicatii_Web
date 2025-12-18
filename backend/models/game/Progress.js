@@ -20,13 +20,20 @@ const progressSchema = new mongoose.Schema(
     },
 
     // ===== MAIN GOAL =====
-    // How much the castle has been damaged (0 to 100,000,000)
-    castleCompletion: {
+    // Castle construction progress (0 to 100%)
+    castleProgress: {
       type: Number,
-      default: 0, // Starts at 0
+      default: 0, // Starts at 0%
     },
 
-    // Whether the castle is fully destroyed (true when >= 100,000,000)
+    // Which stage of castle building (1, 2, 3, or 4)
+    // Determines what upgrades and features are available
+    castleStage: {
+      type: Number,
+      default: 1, // Starts at stage 1
+    },
+
+    // Whether the castle is fully completed (true when castleProgress >= 100)
     castleCompleted: {
       type: Boolean,
       default: false, // Not completed yet
@@ -49,16 +56,6 @@ const progressSchema = new mongoose.Schema(
       wheat: { type: Number, default: 0 }, // Earned by Farm
     },
 
-    // ===== BUILDINGS OWNED =====
-    // List of buildings the player owns (generates passive income)
-    // Example: [ { type: 'farm', count: 2 }, { type: 'mine', count: 1 } ]
-    buildings: [
-      {
-        type: String, // Building type ('farm', 'mine', etc)
-        count: { type: Number, default: 0 }, // How many of this building
-      },
-    ],
-
     // ===== UPGRADES UNLOCKED =====
     // List of upgrades the player has purchased
     // Example: [ { type: 'sharper_sword', level: 1 } ]
@@ -68,6 +65,14 @@ const progressSchema = new mongoose.Schema(
         level: { type: Number, default: 1 }, // What level they own
       },
     ],
+
+    // ===== AVAILABLE UPGRADES =====
+    // Which upgrades are unlocked for purchase (based on castleStage)
+    // Example: ['sharper_sword', 'stronger_swing', 'better_tools']
+    unlockedUpgrades: {
+      type: [String], // Array of upgrade types available
+      default: ["sharper_sword", "stronger_swing"], // Stage 1 unlocks these
+    },
 
     // ===== STATS TRACKING =====
     // Total clicks made by this player (for achievements/stats)

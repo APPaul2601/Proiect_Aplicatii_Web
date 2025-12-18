@@ -1,0 +1,40 @@
+// Loading Spinner Component - Displays spinning animation with optional message during data loading
+// Used across the app to indicate loading states
+
+import React from "react";
+
+const LoadingSpinner = ({ message = "Loading..." }) => {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100vh",
+        gap: "20px",
+        fontFamily: "Arial, sans-serif",
+      }}
+    >
+      <div
+        style={{
+          width: "40px",
+          height: "40px",
+          border: "4px solid #ddd",
+          borderTop: "4px solid #3498db",
+          borderRadius: "50%",
+          animation: "spin 1s linear infinite",
+        }}
+      />
+      <p style={{ fontSize: "18px", color: "#666" }}>{message}</p>
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default LoadingSpinner;

@@ -1,5 +1,5 @@
 // ============================================
-// PROGRESS ROUTES - Player Game State
+// CASTLE ROUTES - Player Game State
 // ============================================
 // Defines URL endpoints for player progress
 // ALL routes require JWT token (authMiddleware)
@@ -11,7 +11,6 @@ const {
   getProgress,
   clickCastle,
   buyUpgrade,
-  buyBuilding,
 } = require("../controllers/progressController");
 const authMiddleware = require("../middleware/authMiddleware");
 
@@ -27,16 +26,12 @@ router.get("/", authMiddleware, getProgress);
 router.post("/click", authMiddleware, clickCastle);
 
 // ===== BUY UPGRADE =====
-// POST /api/player/buy-upgrade
+// POST /api/castle/buy-upgrade
 // Body: { upgradeType: string }
 // What it does: Buy upgrade, charge resources, apply effect (click power boost)
 router.post("/buy-upgrade", authMiddleware, buyUpgrade);
 
-// ===== BUY BUILDING =====
-// POST /api/player/buy-building
-// Body: { buildingType: string }
-// What it does: Buy building, charge resources, add to buildings
-router.post("/buy-building", authMiddleware, buyBuilding);
+
 
 // Export routes to be used in server.js
 module.exports = router;

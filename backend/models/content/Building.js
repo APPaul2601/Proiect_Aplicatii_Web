@@ -27,23 +27,19 @@ const buildingSchema = new mongoose.Schema(
       required: true, // MUST provide
     },
 
-    // ===== COST TO PURCHASE =====
-    // How many resources needed to buy this building
-    // Example: { gold: 100, wood: 50, stone: 0, wheat: 0 }
-    // Players need these resources to buy
-    cost: {
-      gold: { type: Number, default: 0 }, // Gold cost
-      wood: { type: Number, default: 0 }, // Wood cost
-      stone: { type: Number, default: 0 }, // Stone cost
-      wheat: { type: Number, default: 0 }, // Wheat cost
+    // ===== ICON FOR UI =====
+    // Emoji or symbol to display in UI
+    // Example: '🏰', '⛏️', '🪵', '🌾'
+    icon: {
+      type: String,
+      default: "🏰",
     },
 
-    // ===== PASSIVE INCOME =====
-    // How much this building generates per second
-    // Example: Farm generates 5 wheat/second
-    incomePerSecond: {
-      type: Number,
-      default: 1, // How fast it generates
+    // ===== DESCRIPTION =====
+    // Flavor text for UI
+    description: {
+      type: String,
+      default: "A building",
     },
 
     // ===== WHAT IT PRODUCES =====

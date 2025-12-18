@@ -9,7 +9,8 @@
 const express = require("express"); // Web framework
 const connectDB = require("./config/db"); // MongoDB connection
 const cors = require("cors"); // Cross-origin requests
-require("dotenv").config(); // Load .env variables
+const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, ".env") }); // Load .env variables
 
 // ===== CREATE EXPRESS APP =====
 const app = express();
@@ -33,19 +34,23 @@ app.use(express.json());
 //          POST /api/auth/login
 app.use("/api/auth", require("./routes/authRoutes"));
 
-// Player progress routes (get/update game state - TOKEN REQUIRED)
-// Pattern: GET /api/player
-//          POST /api/player
-app.use("/api/player", require("./routes/progressRoutes"));
+// Castle/Progress routes (get/update game state - TOKEN REQUIRED)
+// Pattern: GET /api/castle
+//          POST /api/castle/click
+//          POST /api/castle/buy-upgrade
+app.use("/api/castle", require("./routes/castleRoutes"));
 
+// Resource collection routes (TOKEN REQUIRED)
+// Pattern: POST /api/resources/collect
+app.use("/api/resources", require("./routes/resourceRoutes"));
 
-const shopRoutes = require("./routes/shopRoutes");
-app.use("/api", shopRoutes);
+// Upgrade catalog and purchase routes (TOKEN REQUIRED)
+// Pattern: GET /api/upgrades
+//          POST /api/upgrades/buy
+app.use("/api/upgrades", require("./routes/upgradeRoutes"));
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server pornit pe http://localhost:${PORT}`));
-
-
+// Shop routes (backward compatibility)
+app.use("/api/shop", require("./routes/shopRoutes"));
 
 // ===== START SERVER =====
 // Listen on PORT (from .env or default 5000)
@@ -55,4 +60,3 @@ app.listen(PORT, () => {
   console.log(`MongoDB URI: ${process.env.MONGO_URI}`);
   console.log("Ready to receive requests!");
 });
-
