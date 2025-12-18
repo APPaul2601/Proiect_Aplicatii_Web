@@ -65,7 +65,12 @@ function UpgradesShop({
                 opacity: isOwned(upgrade.type) ? 0.5 : 1,
               }}
             >
-              <h4 style={styles.upgradeName}>{upgrade.name}</h4>
+              <h4 style={styles.upgradeName}>
+                {upgrade.name}
+                <span style={{ fontWeight: "normal", fontSize: "14px", color: "#27ae60", marginLeft: "8px" }}>
+                  +{upgrade.amount} Power
+                </span>
+              </h4>
               <p style={styles.upgradeDesc}>{upgrade.description}</p>
               <div style={styles.costContainer}>
                 {/* Step 2: Show upgrade cost (affordability) */}

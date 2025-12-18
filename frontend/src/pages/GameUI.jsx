@@ -68,6 +68,7 @@ function GameUI() {
     <div style={styles.pageContainer}>
       <Header
         username={player.user?.username || "Player"}
+        clickPower={player.clickPower}
         onLogout={handleLogout}
       />
 
