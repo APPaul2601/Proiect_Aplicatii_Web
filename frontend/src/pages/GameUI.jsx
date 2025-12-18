@@ -13,21 +13,16 @@ import BuildingClickerButtons from "../components/game/BuildingClickerButtons";
 import UpgradesShop from "../components/game/UpgradesShop";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { useGameData } from "../hooks/useGameData";
-import { getAllUpgrades } from "../api/upgradeAPI";
+import { getAllUpgrades, buyUpgrade } from "../api/upgradeAPI";
 
 function GameUI() {
       // Step 2: Handler for purchasing upgrades (calls buyUpgrade and refreshes player data)
       // This will be passed to UpgradesShop
       const handleUpgradePurchase = async (upgradeType) => {
-        // Optionally, you can add a pending state here if you want to show loading at the GameUI level
-        // For now, UpgradesShop will handle its own pending state
         try {
-          // Call buyUpgrade API (import if needed)
-          // await buyUpgrade(upgradeType);
-          // Refresh player data after purchase
+          await buyUpgrade(upgradeType);
           await fetchPlayerData();
         } catch (err) {
-          // Optionally handle error (e.g., show notification)
           console.error('Upgrade purchase failed:', err);
         }
       };
