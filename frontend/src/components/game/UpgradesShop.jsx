@@ -8,13 +8,16 @@ function UpgradesShop({
   playerResources = { gold: 0, wood: 0, stone: 0, wheat: 0 },
   onUpgradePurchased = () => {},
 }) {
+  // Step 2: UI wiring for upgrade purchase
+  // - Receives purchase handler from parent (GameUI)
+  // - Handles buy button click and disables for owned/unaffordable upgrades
+  // - (Optional) Add pending state for async purchase
   // Check if player can afford upgrade
   const canAfford = (upgrade) => {
     // Safety check - if playerResources is undefined, return false
     if (!playerResources || !upgrade.cost) {
       return false;
     }
-
     return (
       playerResources.gold >= (upgrade.cost.gold || 0) &&
       playerResources.wood >= (upgrade.cost.wood || 0) &&
@@ -23,20 +26,20 @@ function UpgradesShop({
     );
   };
 
-  // Check if upgrade is already owned
+  // Step 2: Check if upgrade is already owned
   const isOwned = (upgradeId) => playerUpgrades.includes(upgradeId);
 
+  // Step 2: Handle buy button click, call parent handler
+  // (Optional: Add pending state here if you want to show loading per-upgrade)
   const handleBuyClick = async (upgrade) => {
     if (!canAfford(upgrade)) {
       alert("Not enough resources!");
       return;
     }
-
     if (isOwned(upgrade._id)) {
       alert("Already owned!");
       return;
     }
-
     try {
       // Call the purchase handler from parent
       await onUpgradePurchased(upgrade._id);
@@ -49,7 +52,6 @@ function UpgradesShop({
   return (
     <div style={styles.shopContainer}>
       <h2 style={styles.title}>⚔️ Upgrades</h2>
-
       {upgrades && upgrades.length > 0 ? (
         <div style={styles.upgradesGrid}>
           {upgrades.map((upgrade) => (
@@ -62,7 +64,6 @@ function UpgradesShop({
             >
               <h4 style={styles.upgradeName}>{upgrade.name}</h4>
               <p style={styles.upgradeDesc}>{upgrade.description}</p>
-
               <div style={styles.costContainer}>
                 {upgrade.cost.gold > 0 && (
                   <span style={styles.cost}>💰 {upgrade.cost.gold}</span>
@@ -77,7 +78,7 @@ function UpgradesShop({
                   <span style={styles.cost}>🌾 {upgrade.cost.wheat}</span>
                 )}
               </div>
-
+              {/* Step 2: Buy button disables for owned/unaffordable upgrades */}
               <button
                 onClick={() => handleBuyClick(upgrade)}
                 disabled={!canAfford(upgrade) || isOwned(upgrade._id)}
