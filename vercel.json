@@ -1,17 +1,4 @@
 {
-  "buildCommand": "npm install --prefix backend && npm install --prefix frontend",
-  "devCommand": "npm install --prefix backend && npm install --prefix frontend",
-  "install": "npm install",
-  "framework": "nextjs",
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
-    }
-  ],
-  "env": {
-    "MONGODB_URI": "@mongodb_uri",
-    "JWT_SECRET": "@jwt_secret",
-    "PORT": "3001"
-  }
+  "buildCommand": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend",
+  "outputDirectory": "frontend/build"
 }
