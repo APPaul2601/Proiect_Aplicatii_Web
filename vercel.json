@@ -1,4 +1,0 @@
-{
-  "buildCommand": "npm install --prefix frontend && npm run build --prefix frontend && mkdir -p public && cp -r frontend/build/* public/",
-  "outputDirectory": "public"
-}
