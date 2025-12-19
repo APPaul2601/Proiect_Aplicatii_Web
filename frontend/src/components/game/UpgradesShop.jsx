@@ -78,6 +78,8 @@ function UpgradesShop({
               style={{
                 ...styles.upgradeCard,
                 opacity: isOwned(upgrade.type) || !isUnlocked(upgrade.type) ? 0.5 : 1,
+                  // Only fade if not affordable
+                  opacity: canAfford(upgrade) ? 1 : 0.5,
               }}
             >
               <h4 style={styles.upgradeName}>
@@ -110,18 +112,16 @@ function UpgradesShop({
               {/* Step 3: Show '✓ Owned' and fade card if owned */}
               <button
                 onClick={() => handleBuyClick(upgrade)}
-                disabled={!canAfford(upgrade) || isOwned(upgrade.type) || !isUnlocked(upgrade.type)}
+                  disabled={!canAfford(upgrade)}
                 style={{
                   ...styles.buyButton,
-                  opacity: !canAfford(upgrade) || isOwned(upgrade.type) || !isUnlocked(upgrade.type) ? 0.5 : 1,
+                    opacity: canAfford(upgrade) ? 1 : 0.5,
                   cursor:
-                    !canAfford(upgrade) || isOwned(upgrade.type) || !isUnlocked(upgrade.type)
-                      ? "not-allowed"
-                      : "pointer",
+                      canAfford(upgrade) ? "pointer" : "not-allowed",
                 }}
               >
                 {/* Step 3: Show owned indicator on button */}
-                {isOwned(upgrade.type) ? "✓ Owned" : !isUnlocked(upgrade.type) ? "Locked" : "Buy"}
+                  Buy
               </button>
             </div>
           ))}
