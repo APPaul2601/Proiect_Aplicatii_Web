@@ -9,6 +9,7 @@ import React from "react";
 function UpgradesShop({
   upgrades = [], // Step 1: List of upgrades from backend
   playerUpgrades = [], // Step 3: List of owned upgrade IDs
+  playerUnlockedUpgrades = [], // List of upgrade types unlocked for player
   playerResources = { gold: 0, wood: 0, stone: 0, wheat: 0 }, // Step 2: Used for affordability check
   onUpgradePurchased = () => {}, // Step 1/2: Handler from parent to trigger purchase
 }) {
@@ -30,7 +31,21 @@ function UpgradesShop({
   };
 
   // Step 3: Check if upgrade is already owned (used to disable button and show owned state)
-  const isOwned = (upgradeType) => playerUpgrades.includes(upgradeType);
+  const isOwned = (upgradeType) => {
+    if (!playerUpgrades) return false;
+    // support both array of strings and array of objects like { type, level }
+    if (playerUpgrades.length > 0 && typeof playerUpgrades[0] === "object") {
+      return playerUpgrades.some((u) => u.type === upgradeType);
+    }
+    return playerUpgrades.includes(upgradeType);
+  };
+
+  // Step 4: Check if upgrade is unlocked for this player
+  const isUnlocked = (upgradeType) => {
+    // If unlocked list not provided, treat as locked to be safe
+    if (!playerUnlockedUpgrades) return false;
+    return playerUnlockedUpgrades.includes(upgradeType);
+  };
 
   // Step 2: Handle buy button click, call parent handler (triggers buyUpgrade API via parent)
   // (Optional: Add pending state here if you want to show loading per-upgrade)
@@ -62,7 +77,7 @@ function UpgradesShop({
               key={upgrade.type}
               style={{
                 ...styles.upgradeCard,
-                opacity: isOwned(upgrade.type) ? 0.5 : 1,
+                opacity: isOwned(upgrade.type) || !isUnlocked(upgrade.type) ? 0.5 : 1,
               }}
             >
               <h4 style={styles.upgradeName}>
@@ -72,6 +87,10 @@ function UpgradesShop({
                 </span>
               </h4>
               <p style={styles.upgradeDesc}>{upgrade.description}</p>
+              {/* Show lock badge if not unlocked */}
+              {!isUnlocked(upgrade.type) && (
+                <div style={styles.lockBadge}>🔒 Locked (Stage {upgrade.stage || "?"})</div>
+              )}
               <div style={styles.costContainer}>
                 {/* Step 2: Show upgrade cost (affordability) */}
                 {upgrade.cost.gold > 0 && (
@@ -91,18 +110,18 @@ function UpgradesShop({
               {/* Step 3: Show '✓ Owned' and fade card if owned */}
               <button
                 onClick={() => handleBuyClick(upgrade)}
-                disabled={!canAfford(upgrade) || isOwned(upgrade.type)}
+                disabled={!canAfford(upgrade) || isOwned(upgrade.type) || !isUnlocked(upgrade.type)}
                 style={{
                   ...styles.buyButton,
-                  opacity: !canAfford(upgrade) || isOwned(upgrade.type) ? 0.5 : 1,
+                  opacity: !canAfford(upgrade) || isOwned(upgrade.type) || !isUnlocked(upgrade.type) ? 0.5 : 1,
                   cursor:
-                    !canAfford(upgrade) || isOwned(upgrade.type)
+                    !canAfford(upgrade) || isOwned(upgrade.type) || !isUnlocked(upgrade.type)
                       ? "not-allowed"
                       : "pointer",
                 }}
               >
                 {/* Step 3: Show owned indicator on button */}
-                {isOwned(upgrade.type) ? "✓ Owned" : "Buy"}
+                {isOwned(upgrade.type) ? "✓ Owned" : !isUnlocked(upgrade.type) ? "Locked" : "Buy"}
               </button>
             </div>
           ))}

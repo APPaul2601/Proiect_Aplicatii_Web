@@ -45,6 +45,25 @@ exports.updateCastleProgress = async (req, res) => {
       castleStage = 2;
     }
 
+    // If the player's stage increased, unlock upgrades tied to the new stage
+    let newlyUnlocked = [];
+    if (castleStage > progress.castleStage) {
+      try {
+        const upgradesToUnlock = await Upgrade.find({ stage: castleStage }).select("type");
+        if (upgradesToUnlock && upgradesToUnlock.length > 0) {
+          if (!progress.unlockedUpgrades) progress.unlockedUpgrades = [];
+          upgradesToUnlock.forEach((u) => {
+            if (!progress.unlockedUpgrades.includes(u.type)) {
+              progress.unlockedUpgrades.push(u.type);
+              newlyUnlocked.push(u.type);
+            }
+          });
+        }
+      } catch (err) {
+        console.error("❌ Error unlocking upgrades:", err.message);
+      }
+    }
+
     // Update progress fields
     progress.castleProgress = newProgress;
     progress.castleStage = castleStage;
@@ -59,6 +78,7 @@ exports.updateCastleProgress = async (req, res) => {
       castleProgress: newProgress,
       castleStage,
       castleCompleted,
+      newlyUnlocked,
     });
   } catch (err) {
     console.error("❌ updateCastleProgress error:", err.message);
@@ -87,7 +107,7 @@ exports.getProgress = async (req, res) => {
       progress = new Progress({
         user: userId,
         castleProgress: 0,
-        clickPower: 1,
+        clickPower: 10,
         resources: {
           gold: 0,
           wood: 0,
@@ -135,7 +155,7 @@ exports.clickCastle = async (req, res) => {
     );
 
     // ⭐ FIX: Ensure clickPower is a valid number
-    const clickPower = parseInt(progress.clickPower) || 1;
+    const clickPower = parseInt(progress.clickPower) || 10;
     console.log("   Parsed clickPower:", clickPower);
 
     // ⭐ FIX: Ensure gold is a valid number
@@ -219,7 +239,7 @@ exports.collectResource = async (req, res) => {
     );
 
     // ⭐ FIX: Ensure clickPower is a valid number
-    const amount = parseInt(progress.clickPower) || 1;
+    const amount = parseInt(progress.clickPower) || 10;
     console.log("   Parsed amount:", amount);
 
     // ⭐ FIX: Ensure resource is a valid number
@@ -280,6 +300,15 @@ exports.buyUpgrade = async (req, res) => {
     if (!upgrade) {
       console.log("❌ Upgrade not found:", upgradeType);
       return res.status(404).json({ error: "Upgrade not found" });
+    }
+
+    // Check that this upgrade is unlocked for the player
+    if (
+      progress.unlockedUpgrades &&
+      !progress.unlockedUpgrades.includes(upgradeType)
+    ) {
+      console.log("❌ Upgrade is locked for this player:", upgradeType);
+      return res.status(403).json({ error: "Upgrade is locked" });
     }
 
     // 1. Check if player can afford the upgrade

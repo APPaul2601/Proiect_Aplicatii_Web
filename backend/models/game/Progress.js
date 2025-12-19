@@ -44,7 +44,7 @@ const progressSchema = new mongoose.Schema(
     // Increased by purchasing upgrades
     clickPower: {
       type: Number,
-      default: 1, // Starts at 1 damage per click
+      default: 10, // Starts at 10 damage per click
     },
 
     // ===== RESOURCES =====

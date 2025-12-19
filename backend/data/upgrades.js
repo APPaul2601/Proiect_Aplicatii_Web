@@ -8,6 +8,7 @@ module.exports = [
     cost: { gold: 100, wood: 100, stone: 100, wheat: 100 },
     effect: "clickPower",
     amount: 1,
+    stage: 1,
   },
   {
     type: "stronger_swing",
@@ -16,6 +17,7 @@ module.exports = [
     cost: { gold: 200, wood: 200, stone: 200, wheat: 200 },
     effect: "clickPower",
     amount: 3,
+    stage: 2,
   },
   {
     type: "iron_grip",
@@ -24,6 +26,7 @@ module.exports = [
     cost: { gold: 300, wood: 300, stone: 300, wheat: 300 },
     effect: "clickPower",
     amount: 5,
+    stage: 3,
   },
   {
     type: "warriors_training",
@@ -32,5 +35,6 @@ module.exports = [
     cost: { gold: 500, wood: 500, stone: 500, wheat: 500 },
     effect: "clickPower",
     amount: 10,
+    stage: 4,
   },
 ];
