@@ -48,7 +48,11 @@ export const buyUpgrade = async (upgradeType) => {
   try {
     const headers = { "Content-Type": "application/json", ...getAuthHeader() };
     const res = await axios.post(`${API_URL}/upgrades/buy`, { upgradeType }, { headers });
-    return res.data.progress;
+    // backend wraps success responses with { success, message, data }
+    // prefer res.data.data.progress when present
+    if (res.data && res.data.data && res.data.data.progress) return res.data.data.progress;
+    if (res.data && res.data.progress) return res.data.progress;
+    return res.data;
   } catch (err) {
     throw new Error(err.response?.data?.error || "Error buying upgrade");
   }

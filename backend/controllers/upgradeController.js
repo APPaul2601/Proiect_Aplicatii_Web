@@ -40,6 +40,14 @@ exports.buyUpgrade = async (req, res) => {
       return res.status(404).json(notFoundResponse("Upgrade"));
     }
 
+    // Ensure the upgrade is unlocked for this player
+    if (
+      progress.unlockedUpgrades &&
+      !progress.unlockedUpgrades.includes(upgradeType)
+    ) {
+      return res.status(403).json(errorResponse("Upgrade is locked", 403));
+    }
+
     // Step 3: Check if player can afford upgrade (compare player resources to upgrade cost)
     if (
       progress.resources.gold < upgrade.cost.gold ||

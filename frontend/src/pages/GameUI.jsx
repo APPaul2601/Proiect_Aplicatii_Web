@@ -28,12 +28,12 @@ function GameUI() {
       };
     // Fetch upgrades from backend when component mounts (Step 1)
   const navigate = useNavigate();
-  const { player, loading, error, fetchPlayerData } = useGameData();
+  const { player, loading, error, fetchPlayerData, latestUnlocked, clearLatestUnlocked } = useGameData();
   const [upgrades, setUpgrades] = useState([]);
   const [upgradesLoading, setUpgradesLoading] = useState(true);
 
+  // Fetch upgrades on mount
   useEffect(() => {
-    // Fetch upgrades on mount
     const fetchUpgradesData = async () => {
       try {
         const data = await getAllUpgrades();
@@ -46,6 +46,26 @@ function GameUI() {
     };
     fetchUpgradesData();
   }, []);
+
+  // auto-dismiss the unlock banner after a short delay
+  useEffect(() => {
+    if (latestUnlocked && latestUnlocked.length > 0) {
+      const t = setTimeout(() => {
+        clearLatestUnlocked();
+      }, 4000);
+      return () => clearTimeout(t);
+    }
+  }, [latestUnlocked, clearLatestUnlocked]);
+
+  // auto-dismiss the unlock banner after a short delay
+  useEffect(() => {
+    if (latestUnlocked && latestUnlocked.length > 0) {
+      const t = setTimeout(() => {
+        clearLatestUnlocked();
+      }, 4000);
+      return () => clearTimeout(t);
+    }
+  }, [latestUnlocked, clearLatestUnlocked]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -72,6 +92,15 @@ function GameUI() {
         onLogout={handleLogout}
       />
 
+      {/* Unlock notification banner */}
+      {latestUnlocked && latestUnlocked.length > 0 && (
+        <div style={styles.unlockBanner}>
+          New upgrades unlocked: {latestUnlocked.join(", ")}
+        </div>
+      )}
+
+      {/* Auto-dismiss handled in useEffect above */}
+
       <div style={styles.topSection}>
         {/* ⭐ RESOURCES DISPLAY - Top Bar */}
         <ResourcesDisplay resources={player.resources} />
@@ -94,6 +123,7 @@ function GameUI() {
           <UpgradesShop
             upgrades={upgrades}
             playerUpgrades={player.upgrades || []}
+            playerUnlockedUpgrades={player.unlockedUpgrades || []}
             playerResources={player.resources}
             onUpgradePurchased={handleUpgradePurchase}
           />
@@ -131,6 +161,16 @@ const styles = {
     padding: "20px",
     borderRadius: "8px",
     boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+  },
+  unlockBanner: {
+    backgroundColor: "#fffbeb",
+    border: "1px solid #ffe58f",
+    padding: "10px 14px",
+    borderRadius: "6px",
+    margin: "12px 0",
+    textAlign: "center",
+    color: "#8a6d1b",
+    fontWeight: "600",
   },
 };
 
