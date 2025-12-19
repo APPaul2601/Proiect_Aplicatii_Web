@@ -1,3 +1,70 @@
+// ===== UPDATE CASTLE PROGRESS =====
+// POST /api/castle/progress
+// Body: { amount: number }
+// Handles updating the player's castle progress:
+// - Adds the given amount to castleProgress
+// - Checks for milestone achievements (25%, 50%, 75%, 100%)
+// - Updates castleStage and castleCompleted accordingly
+// - Returns the new progress and milestone (if any)
+exports.updateCastleProgress = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { amount } = req.body;
+    // Validate input
+    if (typeof amount !== "number" || isNaN(amount)) {
+      return res.status(400).json({ error: "Invalid progress amount" });
+    }
+
+    // Find the player's progress document
+    const progress = await Progress.findOne({ user: userId });
+    if (!progress) {
+      return res.status(404).json({ error: "Progress not found" });
+    }
+
+    // Calculate new castle progress
+    let newProgress = progress.castleProgress + amount;
+    let milestone = null;
+    let castleStage = progress.castleStage;
+    let castleCompleted = progress.castleCompleted;
+
+    // Check for milestone achievements and update stage/completion
+    // Milestones at 25%, 50%, 75%, 100%
+    if (newProgress >= 100) {
+      newProgress = 100;
+      castleCompleted = true;
+      milestone = "Castle Completed!";
+      castleStage = 4;
+    } else if (newProgress >= 75 && progress.castleStage < 4) {
+      milestone = "Stage 4 reached!";
+      castleStage = 4;
+    } else if (newProgress >= 50 && progress.castleStage < 3) {
+      milestone = "Stage 3 reached!";
+      castleStage = 3;
+    } else if (newProgress >= 25 && progress.castleStage < 2) {
+      milestone = "Stage 2 reached!";
+      castleStage = 2;
+    }
+
+    // Update progress fields
+    progress.castleProgress = newProgress;
+    progress.castleStage = castleStage;
+    progress.castleCompleted = castleCompleted;
+    await progress.save();
+
+    // Respond with updated progress and milestone info
+    res.json({
+      success: true,
+      progress,
+      milestone,
+      castleProgress: newProgress,
+      castleStage,
+      castleCompleted,
+    });
+  } catch (err) {
+    console.error("❌ updateCastleProgress error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+};
 // ============================================
 // PROGRESS CONTROLLER - Player Game State
 // ============================================
@@ -185,16 +252,27 @@ exports.collectResource = async (req, res) => {
 // ===== BUY UPGRADE =====
 // POST /api/castle/buy-upgrade
 // Body: { upgradeType: string }
+// ===== BUY UPGRADE =====
+// POST /api/castle/buy-upgrade
+// Body: { upgradeType: string }
+// Handles purchasing an upgrade for the player:
+// - Checks if the player has enough resources
+// - Deducts the cost from player's resources
+// - Applies the upgrade effect (e.g., increases clickPower)
+// - Adds the upgrade to the player's upgrades array as an object { type, level }
 exports.buyUpgrade = async (req, res) => {
   try {
     const userId = req.userId;
     const { upgradeType } = req.body;
 
+    // Log the upgrade attempt
     console.log("⭐ Buy upgrade attempt:", userId, "upgrade:", upgradeType);
 
+    // Find the player's progress and the upgrade definition
     const progress = await Progress.findOne({ user: userId });
     const upgrade = await Upgrade.findOne({ type: upgradeType });
 
+    // Ensure player progress and upgrade exist
     if (!progress) {
       console.log("❌ Progress not found");
       return res.status(404).json({ error: "Progress not found" });
@@ -204,7 +282,7 @@ exports.buyUpgrade = async (req, res) => {
       return res.status(404).json({ error: "Upgrade not found" });
     }
 
-    // Check if player can afford upgrade
+    // 1. Check if player can afford the upgrade
     if (
       progress.resources.gold < upgrade.cost.gold ||
       progress.resources.wood < upgrade.cost.wood ||
@@ -215,23 +293,23 @@ exports.buyUpgrade = async (req, res) => {
       return res.status(400).json({ error: "Not enough resources" });
     }
 
-    // Charge resources
+    // 2. Deduct the upgrade cost from player's resources
     progress.resources.gold -= upgrade.cost.gold;
     progress.resources.wood -= upgrade.cost.wood;
     progress.resources.stone -= upgrade.cost.stone;
     progress.resources.wheat -= upgrade.cost.wheat;
 
-    // Apply upgrade effect
+    // 3. Apply the upgrade effect (e.g., increase clickPower)
     if (upgrade.effect === "clickPower") {
       progress.clickPower += upgrade.amount;
       console.log("✅ Click power increased to:", progress.clickPower);
     }
 
-    // Add upgrade to player's upgrades
+    // 4. Add the upgrade to the player's upgrades array as an object
     if (!progress.upgrades) {
       progress.upgrades = [];
     }
-    progress.upgrades.push(upgradeType);
+    progress.upgrades.push({ type: upgradeType, level: 1 });
 
     await progress.save();
     console.log("✅ Upgrade purchased");
