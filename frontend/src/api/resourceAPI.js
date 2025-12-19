@@ -1,12 +1,12 @@
 import axios from "axios";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
 export const collectResource = async (buildingType) => {
   const token = localStorage.getItem("token");
 
-  console.log("🌐 collectResource called with:", buildingType);  
-  console.log("🔑 Token:", token ? "EXISTS" : "MISSING");  
+  console.log("🌐 collectResource called with:", buildingType);
+  console.log("🔑 Token:", token ? "EXISTS" : "MISSING");
   return axios.post(
     `${API_BASE}/resources/collect`,
     { buildingType },
