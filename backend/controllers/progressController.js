@@ -1,32 +1,91 @@
-// ============================================
-// PROGRESS CONTROLLER - Player Game State
-// ============================================
-// Handles player progress: click castle, get progress
-// All changes saved to Progress collection
-
 const Progress = require("../models/game/Progress");
 const Upgrade = require("../models/content/Upgrade");
 
-// ===== GET PROGRESS =====
-// GET /api/castle
-// What it does: Get player's current game state
+exports.updateCastleProgress = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { amount } = req.body;
+    if (typeof amount !== "number" || isNaN(amount)) {
+      return res.status(400).json({ error: "Invalid progress amount" });
+    }
+
+    const progress = await Progress.findOne({ user: userId });
+    if (!progress) {
+      return res.status(404).json({ error: "Progress not found" });
+    }
+
+    let newProgress = progress.castleProgress + amount;
+    let milestone = null;
+    let castleStage = progress.castleStage;
+    let castleCompleted = progress.castleCompleted;
+
+    if (newProgress >= 100) {
+      newProgress = 100;
+      castleCompleted = true;
+      milestone = "Castle Completed!";
+      castleStage = 4;
+    } else if (newProgress >= 75 && progress.castleStage < 4) {
+      milestone = "Stage 4 reached!";
+      castleStage = 4;
+    } else if (newProgress >= 50 && progress.castleStage < 3) {
+      milestone = "Stage 3 reached!";
+      castleStage = 3;
+    } else if (newProgress >= 25 && progress.castleStage < 2) {
+      milestone = "Stage 2 reached!";
+      castleStage = 2;
+    }
+
+    let newlyUnlocked = [];
+    if (castleStage > progress.castleStage) {
+      try {
+        const upgradesToUnlock = await Upgrade.find({
+          stage: castleStage,
+        }).select("type");
+        if (upgradesToUnlock && upgradesToUnlock.length > 0) {
+          if (!progress.unlockedUpgrades) progress.unlockedUpgrades = [];
+          upgradesToUnlock.forEach((u) => {
+            if (!progress.unlockedUpgrades.includes(u.type)) {
+              progress.unlockedUpgrades.push(u.type);
+              newlyUnlocked.push(u.type);
+            }
+          });
+        }
+      } catch (err) {
+        console.error("Error unlocking upgrades:", err.message);
+      }
+    }
+
+    progress.castleProgress = newProgress;
+    progress.castleStage = castleStage;
+    progress.castleCompleted = castleCompleted;
+    await progress.save();
+
+    res.json({
+      success: true,
+      progress,
+      milestone,
+      castleProgress: newProgress,
+      castleStage,
+      castleCompleted,
+      newlyUnlocked,
+    });
+  } catch (err) {
+    console.error("updateCastleProgress error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+};
+
 exports.getProgress = async (req, res) => {
   try {
     const userId = req.userId;
-    console.log("?? Fetching progress for user:", userId);
 
-    // Step 1: Find player progress
     let progress = await Progress.findOne({ user: userId });
 
-    // Step 2: If no progress exists, create it
     if (!progress) {
-      console.log("?? Creating new progress document");
       progress = new Progress({
         user: userId,
         castleProgress: 0,
-        castleStage: 1,
-        castleCompleted: false,
-        clickPower: 1,
+        clickPower: 10,
         resources: {
           gold: 0,
           wood: 0,
@@ -34,131 +93,149 @@ exports.getProgress = async (req, res) => {
           wheat: 0,
         },
         upgrades: [],
-        unlockedUpgrades: ["sharper_sword", "stronger_swing"],
       });
       await progress.save();
-      console.log("? Progress created");
     }
 
-    // Step 3: Return progress
-    console.log("? Returning progress:", progress);
     res.json({ progress });
   } catch (err) {
-    console.error("? getProgress error:", err.message);
+    console.error("getProgress error:", err.message);
     res.status(500).json({ error: err.message });
   }
 };
 
-// ===== CLICK CASTLE =====
-// POST /api/castle/click
-// Body: { clicks: number }
-// What it does: Add clicks to castle, increase resources, update progress
 exports.clickCastle = async (req, res) => {
   try {
     const userId = req.userId;
-    const { clicks } = req.body;
-    
-    console.log("??? Click attempt:", userId, "clicks:", clicks);
 
-    // Step 1: Find player progress
     const progress = await Progress.findOne({ user: userId });
+
     if (!progress) {
-      console.log("? Progress not found for user:", userId);
       return res.status(404).json({ error: "Progress not found" });
     }
 
-    // Step 2: Add clicks to castle progress
-    progress.castleProgress += (clicks * progress.clickPower) / 100;
-    if (progress.castleProgress > 100) {
-      progress.castleProgress = 100;
-    }
+    const clickPower = parseInt(progress.clickPower) || 10;
+    const currentGold = parseInt(progress.resources.gold) || 0;
+    progress.resources.gold = currentGold + clickPower;
 
-    // Step 3: Check if castle is completed
-    if (progress.castleProgress >= 100) {
-      progress.castleCompleted = true;
-      progress.castleStage += 1;
-      progress.castleProgress = 0;
-      console.log("?? Castle completed! Stage:", progress.castleStage);
-    }
-
-    // Step 4: Add resources from clicking
-    progress.resources.gold += clicks * progress.clickPower;
-
-    // Step 5: Save changes
     await progress.save();
-    console.log("? Click saved, progress:", progress.resources.gold);
 
-    res.json({ progress });
+    res.json({
+      success: true,
+      message: "Castle clicked!",
+      progress,
+      resources: progress.resources,
+      castleProgress: progress.castleProgress,
+      clickPower: progress.clickPower,
+    });
   } catch (err) {
-    console.error("? clickCastle error:", err.message);
+    console.error("clickCastle error:", err.message);
     res.status(500).json({ error: err.message });
   }
 };
 
-// ===== BUY UPGRADE =====
-// POST /api/castle/buy-upgrade
-// Body: { upgradeType: string }
-// What it does: Buy upgrade, charge resources, apply effect
+exports.collectResource = async (req, res) => {
+  try {
+    const { buildingType } = req.body;
+    const userId = req.userId;
+
+    const progress = await Progress.findOne({ user: userId });
+
+    if (!progress) {
+      return res.status(404).json({
+        success: false,
+        message: "Player progress not found",
+      });
+    }
+
+    const resourceMap = {
+      quarry: "stone",
+      lumber_yard: "wood",
+      wheat_field: "wheat",
+      castle: "gold",
+    };
+
+    const resourceType = resourceMap[buildingType];
+
+    if (!resourceType) {
+      return res.status(400).json({
+        success: false,
+        message: "Unknown building type",
+      });
+    }
+
+    const amount = parseInt(progress.clickPower) || 10;
+    const currentAmount = parseInt(progress.resources[resourceType]) || 0;
+    progress.resources[resourceType] = currentAmount + amount;
+
+    await progress.save();
+
+    res.json({
+      success: true,
+      message: `Collected ${amount} ${resourceType}`,
+      progress,
+      resources: progress.resources,
+      castleProgress: progress.castleProgress,
+    });
+  } catch (err) {
+    console.error("Error in collectResource:", err.message);
+    res.status(500).json({
+      success: false,
+      message: "Error collecting resource: " + err.message,
+    });
+  }
+};
+
 exports.buyUpgrade = async (req, res) => {
   try {
     const userId = req.userId;
     const { upgradeType } = req.body;
-    
-    console.log("?? Buy upgrade attempt:", userId, "upgrade:", upgradeType);
 
-    // Step 1: Find player progress and upgrade data
     const progress = await Progress.findOne({ user: userId });
     const upgrade = await Upgrade.findOne({ type: upgradeType });
 
     if (!progress) {
-      console.log("? Progress not found");
       return res.status(404).json({ error: "Progress not found" });
     }
     if (!upgrade) {
-      console.log("? Upgrade not found:", upgradeType);
       return res.status(404).json({ error: "Upgrade not found" });
     }
 
-    // Step 2: Check if player can afford upgrade
+    if (
+      progress.unlockedUpgrades &&
+      !progress.unlockedUpgrades.includes(upgradeType)
+    ) {
+      return res.status(403).json({ error: "Upgrade is locked" });
+    }
+
     if (
       progress.resources.gold < upgrade.cost.gold ||
       progress.resources.wood < upgrade.cost.wood ||
       progress.resources.stone < upgrade.cost.stone ||
       progress.resources.wheat < upgrade.cost.wheat
     ) {
-      console.log("? Not enough resources");
       return res.status(400).json({ error: "Not enough resources" });
     }
 
-    // Step 3: Charge resources
     progress.resources.gold -= upgrade.cost.gold;
     progress.resources.wood -= upgrade.cost.wood;
     progress.resources.stone -= upgrade.cost.stone;
     progress.resources.wheat -= upgrade.cost.wheat;
 
-    // Step 4: Apply upgrade effect
     if (upgrade.effect === "clickPower") {
       progress.clickPower += upgrade.amount;
-      console.log("?? Click power increased to:", progress.clickPower);
     }
 
-    // Step 5: Add upgrade to player's upgrades
-    const existingUpgrade = progress.upgrades.find(
-      (u) => u.type === upgradeType
-    );
-    if (existingUpgrade) {
-      existingUpgrade.level += 1;
-    } else {
-      progress.upgrades.push({ type: upgradeType, level: 1 });
+    if (!progress.upgrades) {
+      progress.upgrades = [];
     }
+    progress.upgrades.push({ type: upgradeType, level: 1 });
 
-    // Step 6: Save changes
     await progress.save();
-    console.log("? Upgrade purchased");
 
-    res.json({ progress, message: "Upgrade purchased" });
+    res.json({ success: true, progress, message: "Upgrade purchased" });
   } catch (err) {
-    console.error("? buyUpgrade error:", err.message);
+    console.error("buyUpgrade error:", err.message);
     res.status(500).json({ error: err.message });
   }
 };

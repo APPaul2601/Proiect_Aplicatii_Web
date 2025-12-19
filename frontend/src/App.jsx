@@ -1,6 +1,3 @@
-// Main App Component - Root component handling routing and authentication state management
-// Uses React Router for navigation between Register, Login, and Game pages
-
 import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
@@ -16,23 +13,15 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
 
   useEffect(() => {
-    // Listen for storage changes (when token is added/removed)
     const handleStorageChange = () => {
       const token = localStorage.getItem("token");
-      console.log(
-        "🔔 Storage changed, token:",
-        token ? "✅ Found" : "❌ Not found"
-      );
       setIsLoggedIn(!!token);
     };
 
-    // Listen for storage changes from other tabs/windows
     window.addEventListener("storage", handleStorageChange);
 
-    // Also check token on component mount
     const token = localStorage.getItem("token");
     if (token) {
-      console.log("✅ Token found on app mount, user is logged in");
       setIsLoggedIn(true);
     }
 

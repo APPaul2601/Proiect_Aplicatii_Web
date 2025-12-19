@@ -1,5 +1,3 @@
-// Login Form Component - Reusable form for user login with username and password
-// Handles form submission, validation, loading state, and error display
 import React, { useState } from "react";
 import { loginUser } from "../../services/authService";
 import { saveToken } from "../../services/storageService";
