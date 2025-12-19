@@ -1,3 +1,6 @@
+// Building Clicker Buttons - Grid of 4 buttons for collecting resources from different buildings
+// Props: onClickBuilding (function), disabled (boolean)
+
 import React, { useState } from "react";
 import { clickCastle } from "../../api/playerAPI";
 import { collectResource } from "../../api/resourceAPI";
@@ -5,117 +8,97 @@ import { collectResource } from "../../api/resourceAPI";
 const BuildingClickerButtons = ({ onClickBuilding, disabled = false }) => {
   const [loading, setLoading] = useState(false);
 
+  // Use backend canonical building types
   const buildings = [
-    {
-      type: "castle",
-      label: "Castle",
-      image: require("../../images/buildings/Castle.png"),
-      top: "24%",
-      left: "37%",
-    },
-    {
-      type: "quarry",
-      label: "Stone Quarry",
-      image: require("../../images/buildings/Stone Quarry.png"),
-      top: "80%",
-      left: "30%",
-    },
-    {
-      type: "lumber_yard",
-      label: "Lumber Yard",
-      image: require("../../images/buildings/Lumber Yard.png"),
-      top: "50%",
-      left: "75%",
-    },
-    {
-      type: "wheat_field",
-      label: "Wheat Field",
-      image: require("../../images/buildings/Wheat Field.png"),
-      top: "60%",
-      left: "10%",
-    },
+    { type: "castle", icon: "🏰", label: "Castle" },
+    { type: "quarry", icon: "⛏️", label: "Quarry" },
+    { type: "lumber_yard", icon: "🌲", label: "Lumber Yard" },
+    { type: "wheat_field", icon: "🌾", label: "Wheat Field" },
   ];
 
   const handleClick = async (buildingType) => {
+    console.log("🖱️ Button clicked:", buildingType);
+    
     if (disabled || loading) {
+      console.log("❌ Button disabled or loading");
       return;
     }
 
     try {
       setLoading(true);
+      console.log("📤 Sending request for:", buildingType);
 
       let result;
       if (buildingType === "castle") {
+        console.log("💰 Calling clickCastle()");
         result = await clickCastle();
       } else {
+        console.log("📦 Calling collectResource()");
         result = await collectResource(buildingType);
       }
 
+      console.log("✅ API Response:", result);
       const responseData = result && result.data ? result.data : result;
+      console.log("📊 Normalized data:", responseData);
 
-      if (onClickBuilding && typeof onClickBuilding === "function") {
-        onClickBuilding();
+      // ⭐ FIX: AWAIT the callback and close loading AFTER it completes
+      if (onClickBuilding && typeof onClickBuilding === 'function') {
+        console.log("🔄 Calling onClickBuilding callback NOW");
+        await onClickBuilding();  // ← AWAIT HERE - don't pass data, it will fetch fresh
+        console.log("✅ Callback finished, enabling buttons");
       }
 
       setLoading(false);
     } catch (err) {
-      console.error("Error:", err);
+      console.error("❌ FULL ERROR OBJECT:", err);
+      console.error("❌ Error message:", err.message);
+      console.error("❌ Error response:", err.response);
       setLoading(false);
     }
   };
 
   return (
-    <div style={styles.buildingContainer}>
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(2, 1fr)",
+        gap: "15px",
+        marginBottom: "20px",
+      }}
+    >
       {buildings.map((building) => (
-        <div
+        <button
           key={building.type}
           onClick={() => handleClick(building.type)}
+          disabled={disabled || loading}
           style={{
-            ...styles.buildingWrapper,
-            top: building.top,
-            left: building.left,
+            padding: "15px",
+            fontSize: "16px",
+            fontWeight: "bold",
+            backgroundColor: disabled || loading ? "#bdc3c7" : "#3498db",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
             cursor: disabled || loading ? "not-allowed" : "pointer",
-            pointerEvents: disabled || loading ? "none" : "auto",
+            transition: "all 0.3s ease",
+            opacity: disabled || loading ? 0.6 : 1,
           }}
           onMouseEnter={(e) => {
-            if (!disabled && !loading) {
-              e.currentTarget.style.filter = "brightness(1.3)";
-            }
+            if (!disabled && !loading) e.target.style.backgroundColor = "#2980b9";
           }}
           onMouseLeave={(e) => {
-            if (!disabled && !loading) {
-              e.currentTarget.style.filter = "brightness(1)";
-            }
+            if (!disabled && !loading) e.target.style.backgroundColor = "#3498db";
           }}
         >
-          <img
-            src={building.image}
-            alt={building.label}
-            style={styles.buildingImage}
-          />
-        </div>
+          <div style={{ fontSize: "24px", marginBottom: "5px" }}>
+            {building.icon}
+          </div>
+          {building.label}
+          {loading && " ..."}
+        </button>
       ))}
     </div>
   );
-};
-
-const styles = {
-  buildingContainer: {
-    position: "absolute",
-    width: "100%",
-    height: "100%",
-  },
-  buildingWrapper: {
-    position: "absolute",
-    transform: "translate(-50%, -50%)",
-    transition: "filter 0.2s ease",
-    zIndex: "10",
-  },
-  buildingImage: {
-    width: "200px",
-    height: "auto",
-    objectFit: "contain",
-  },
 };
 
 export default BuildingClickerButtons;

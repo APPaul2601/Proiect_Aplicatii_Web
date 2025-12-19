@@ -1,9 +1,17 @@
+// ============================================
+// AUTH CONTROLLER - User Registration & Login
+// ============================================
+// Handles user account creation and authentication
+// Passwords are encrypted with bcrypt
+// Returns JWT tokens for authenticated requests
+
 const User = require("../models/auth/User");
 const Progress = require("../models/game/Progress");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 
+// ===== REGISTER =====
 exports.register = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -11,6 +19,7 @@ exports.register = async (req, res) => {
   try {
     const { username, password } = req.body;
 
+    // Validate inputs
     if (!username || !password) {
       await session.abortTransaction();
       return res
@@ -18,20 +27,25 @@ exports.register = async (req, res) => {
         .json({ message: "Username and password required" });
     }
 
+    // Check if user exists
     const userExists = await User.findOne({ username }).session(session);
     if (userExists) {
       await session.abortTransaction();
       return res.status(400).json({ message: "User already exists" });
     }
 
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create user
     const user = new User({
       username,
       password: hashedPassword,
     });
     await user.save({ session });
 
+    // ===== CREATE PROGRESS DOCUMENT =====
+    // Initialize player progress with stage 1
     const progress = new Progress({
       user: user._id,
       castleProgress: 0,
@@ -66,20 +80,24 @@ exports.register = async (req, res) => {
   }
 };
 
+// ===== LOGIN =====
 exports.login = async (req, res) => {
   try {
     const { username, password } = req.body;
 
+    // Find user
     const user = await User.findOne({ username });
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
+    // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
+    // Create JWT token
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });

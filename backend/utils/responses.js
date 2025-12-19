@@ -1,3 +1,12 @@
+// ============================================
+// RESPONSES - Standard Response Format
+// ============================================
+// Standardized response wrapper functions
+// Ensures consistent API response structure
+
+// ===== SUCCESS RESPONSE =====
+// Returns standardized success response
+// Usage: res.json(successResponse(data, message))
 const successResponse = (data, message = "Success") => {
   return {
     success: true,
@@ -6,6 +15,9 @@ const successResponse = (data, message = "Success") => {
   };
 };
 
+// ===== ERROR RESPONSE =====
+// Returns standardized error response
+// Usage: res.status(400).json(errorResponse(error, statusCode))
 const errorResponse = (error, statusCode = 400) => {
   return {
     success: false,
@@ -14,6 +26,8 @@ const errorResponse = (error, statusCode = 400) => {
   };
 };
 
+// ===== VALIDATION ERROR RESPONSE =====
+// Returns validation-specific error response
 const validationError = (errors) => {
   return {
     success: false,
@@ -22,6 +36,8 @@ const validationError = (errors) => {
   };
 };
 
+// ===== UNAUTHORIZED RESPONSE =====
+// Returns 401 unauthorized response
 const unauthorizedResponse = (message = "Unauthorized") => {
   return {
     success: false,
@@ -30,6 +46,8 @@ const unauthorizedResponse = (message = "Unauthorized") => {
   };
 };
 
+// ===== NOT FOUND RESPONSE =====
+// Returns 404 not found response
 const notFoundResponse = (resource = "Resource") => {
   return {
     success: false,
