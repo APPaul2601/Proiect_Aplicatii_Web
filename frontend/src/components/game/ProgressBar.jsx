@@ -4,13 +4,16 @@
 
 import React, { useMemo } from "react";
 
-const MILESTONES = [25, 50, 75, 100];
-const MILESTONE_LABELS = {
-  25: "Stage 2 reached!",
-  50: "Stage 3 reached!",
-  75: "Stage 4 reached!",
-  100: "Castle Completed!",
-};
+// Milestones at every 10%
+const MILESTONES = Array.from({ length: 10 }, (_, i) => (i + 1) * 10);
+const MILESTONE_LABELS = MILESTONES.reduce((acc, val) => {
+  if (val === 100) {
+    acc[val] = "Castle Completed!";
+  } else {
+    acc[val] = `Milestone: ${val}% reached!`;
+  }
+  return acc;
+}, {});
 
 const ProgressBar = ({ progress }) => {
   const progressPercentage = Math.min(progress || 0, 100);

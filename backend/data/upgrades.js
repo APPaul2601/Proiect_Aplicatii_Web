@@ -12,10 +12,10 @@ module.exports = [
   {
     type: "stronger_swing",
     name: "Stronger Swing",
-    description: "Increase click power by 2",
+    description: "Increase click power by 3",
     cost: { gold: 200, wood: 200, stone: 200, wheat: 200 },
     effect: "clickPower",
-    amount: 2,
+    amount: 3,
   },
   {
     type: "iron_grip",

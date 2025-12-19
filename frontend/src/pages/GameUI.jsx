@@ -76,7 +76,8 @@ function GameUI() {
         {/* ⭐ RESOURCES DISPLAY - Top Bar */}
         <ResourcesDisplay resources={player.resources} />
         {/* ⭐ PROGRESS BAR - Below Resources */}
-        <ProgressBar progress={player.castleProgress} />
+        {/* Progress is now based on clickPower, capped at 100 */}
+        <ProgressBar progress={Math.min((player.clickPower || 0), 100)} />
       </div>
 
       <div style={styles.contentContainer}>
