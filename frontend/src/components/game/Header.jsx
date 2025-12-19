@@ -1,70 +1,81 @@
-// Header Component - Displays game title, player username, and logout button
-// Used in the main game UI to provide navigation and user context
-
 import React from "react";
 
-
-const Header = ({ username, clickPower, onLogout, onShowAchievements }) => {
+const Header = ({ username, clickPower, onLogout }) => {
   return (
     <div
       style={{
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        marginBottom: "20px",
-        padding: "15px",
-        backgroundColor: "#34495e",
+        padding: "15px 30px",
+        backgroundColor: "rgba(26, 26, 46, 0.95)",
         color: "white",
-        borderRadius: "8px",
+        borderBottom: "3px solid #FFD700",
+        fontFamily: "'Press Start 2P', cursive, sans-serif",
+        flexShrink: 0,
       }}
     >
       <div>
-        <h1 style={{ margin: 0, fontSize: "24px" }}>⚔️ Castle Clicker</h1>
-        <p style={{ margin: "5px 0 0 0", fontSize: "14px", opacity: 0.8 }}>
+        <h1
+          style={{
+            margin: 0,
+            fontSize: "14px",
+            letterSpacing: "1px",
+            textShadow: "0 0 10px rgba(255, 215, 0, 0.5)",
+          }}
+        >
+          ⚔️ Castle Clicker
+        </h1>
+        <p
+          style={{
+            margin: "5px 0 0 0",
+            fontSize: "8px",
+            color: "#FFD700",
+            letterSpacing: "0.5px",
+          }}
+        >
           Welcome, {username}!<br />
-          <span style={{ fontWeight: "bold", color: "#ffd700", display: "flex", alignItems: "center", gap: "6px" }}>
-            <span role="img" aria-label="Sword">🗡️</span> Power: {clickPower}
+          <span
+            style={{
+              fontWeight: "bold",
+              color: "#ffd700",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+            }}
+          >
+            <span role="img" aria-label="Sword">
+              🗡️
+            </span>{" "}
+            Power: {clickPower}
           </span>
         </p>
       </div>
-      <div style={{ display: "flex", gap: "10px" }}>
-        <button
-          onClick={onShowAchievements}
-          style={{
-            padding: "10px 16px",
-            backgroundColor: "#27ae60",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontWeight: "bold",
-            fontSize: "14px",
-            transition: "background-color 0.3s ease",
-          }}
-          onMouseEnter={e => e.target.style.backgroundColor = "#219150"}
-          onMouseLeave={e => e.target.style.backgroundColor = "#27ae60"}
-        >
-          🏆 Achievements
-        </button>
-        <button
-          onClick={onLogout}
-          style={{
-            padding: "10px 20px",
-            backgroundColor: "#e74c3c",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontWeight: "bold",
-            fontSize: "14px",
-            transition: "background-color 0.3s ease",
-          }}
-          onMouseEnter={e => e.target.style.backgroundColor = "#c0392b"}
-          onMouseLeave={e => e.target.style.backgroundColor = "#e74c3c"}
-        >
-          Logout
-        </button>
-      </div>
+      <button
+        onClick={onLogout}
+        style={{
+          padding: "6px 12px",
+          backgroundColor: "#c0392b",
+          color: "#FFD700",
+          border: "2px solid #FFD700",
+          cursor: "pointer",
+          fontWeight: "bold",
+          fontSize: "8px",
+          fontFamily: "'Press Start 2P', cursive, sans-serif",
+          letterSpacing: "0.5px",
+          transition: "all 0.2s ease",
+        }}
+        onMouseEnter={(e) => {
+          e.target.style.transform = "scale(1.05)";
+          e.target.style.boxShadow = "0 0 10px rgba(255, 215, 0, 0.5)";
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.transform = "scale(1)";
+          e.target.style.boxShadow = "none";
+        }}
+      >
+        Logout
+      </button>
     </div>
   );
 };

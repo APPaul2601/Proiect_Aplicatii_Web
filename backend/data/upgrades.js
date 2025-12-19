@@ -1,40 +1,38 @@
-// Initial seed data for upgrades - populates MongoDB on first run
-
 module.exports = [
   {
     type: "sharper_sword",
     name: "Sharper Sword",
-    description: "Increase click power by 5",
-    cost: { gold: 120, wood: 60, stone: 40, wheat: 30 },
+    description: "Increase click power by 1",
+    cost: { gold: 100, wood: 100, stone: 100, wheat: 100 },
     effect: "clickPower",
-    amount: 5,
-    requiredProgressPercent: 0, // Always available
+    amount: 1,
+    stage: 1,
   },
   {
     type: "stronger_swing",
     name: "Stronger Swing",
-    description: "Increase click power by 10",
-    cost: { gold: 350, wood: 180, stone: 120, wheat: 100 },
+    description: "Increase click power by 3",
+    cost: { gold: 200, wood: 200, stone: 200, wheat: 200 },
     effect: "clickPower",
-    amount: 10,
-    requiredProgressPercent: 25, // Unlocks at 25% progress
+    amount: 3,
+    stage: 2,
   },
   {
     type: "iron_grip",
     name: "Iron Grip",
-    description: "Increase click power by 20",
-    cost: { gold: 800, wood: 400, stone: 300, wheat: 250 },
+    description: "Increase click power by 5",
+    cost: { gold: 300, wood: 300, stone: 300, wheat: 300 },
     effect: "clickPower",
-    amount: 20,
-    requiredProgressPercent: 50, // Unlocks at 50% progress
+    amount: 5,
+    stage: 3,
   },
   {
     type: "warriors_training",
     name: "Warrior's Training",
-    description: "Increase click power by 40",
-    cost: { gold: 1600, wood: 800, stone: 600, wheat: 500 },
+    description: "Increase click power by 10",
+    cost: { gold: 500, wood: 500, stone: 500, wheat: 500 },
     effect: "clickPower",
-    amount: 40,
-    requiredProgressPercent: 75, // Unlocks at 75% progress
+    amount: 10,
+    stage: 4,
   },
 ];

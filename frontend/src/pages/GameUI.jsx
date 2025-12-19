@@ -1,17 +1,6 @@
-// Step 1: Integrate buyUpgrade API
-// - Fetch upgrades from backend on mount
-// - Pass upgrades and purchase handler to UpgradesShop
-// - Refresh player data after purchase
-// Game Page (GameUI) - Main game interface composing all components
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/game/Header";
-import AchievementsModal from "../components/game/AchievementsModal";
-import {
-  getAllAchievements,
-  checkAndUnlockAchievements,
-} from "../api/achievementAPI";
 import ResourcesDisplay from "../components/game/ResourcesDisplay";
 import ProgressBar from "../components/game/ProgressBar";
 import BuildingClickerButtons from "../components/game/BuildingClickerButtons";
@@ -21,29 +10,15 @@ import { useGameData } from "../hooks/useGameData";
 import { getAllUpgrades, buyUpgrade } from "../api/upgradeAPI";
 
 function GameUI() {
-  const [achievementPopup, setAchievementPopup] = useState(null);
-  // Handler for purchasing upgrades (calls buyUpgrade and refreshes player data)
   const handleUpgradePurchase = async (upgradeType) => {
     try {
       await buyUpgrade(upgradeType);
       await fetchPlayerData();
-      // Only check for achievements if purchase succeeded
-      const result = await checkAndUnlockAchievements({ upgradeAny: 1 });
-      if (result && result.newlyUnlocked && result.newlyUnlocked.length > 0) {
-        // Show popup for each newly unlocked achievement (show first, then auto-dismiss)
-        const achievement = result.newlyUnlocked[0];
-        setAchievementPopup({
-          name: achievement.name,
-          description: achievement.description,
-        });
-        setTimeout(() => setAchievementPopup(null), 4000);
-      }
     } catch (err) {
       console.error("Upgrade purchase failed:", err);
-      alert("Failed to purchase upgrade");
     }
   };
-  // Fetch upgrades from backend when component mounts (Step 1)
+
   const navigate = useNavigate();
   const {
     player,
@@ -53,13 +28,11 @@ function GameUI() {
     latestUnlocked,
     clearLatestUnlocked,
   } = useGameData();
-  const [achievementsOpen, setAchievementsOpen] = useState(false);
-  const [achievements, setAchievements] = useState([]);
-  const [achievementsLoading, setAchievementsLoading] = useState(false);
   const [upgrades, setUpgrades] = useState([]);
   const [upgradesLoading, setUpgradesLoading] = useState(true);
+  const [showUpgradesModal, setShowUpgradesModal] = useState(false);
 
-  // Fetch upgrades on mount
+
   useEffect(() => {
     const fetchUpgradesData = async () => {
       try {
@@ -74,17 +47,7 @@ function GameUI() {
     fetchUpgradesData();
   }, []);
 
-  // auto-dismiss the unlock banner after a short delay
-  useEffect(() => {
-    if (latestUnlocked && latestUnlocked.length > 0) {
-      const t = setTimeout(() => {
-        clearLatestUnlocked();
-      }, 4000);
-      return () => clearTimeout(t);
-    }
-  }, [latestUnlocked, clearLatestUnlocked]);
 
-  // auto-dismiss the unlock banner after a short delay
   useEffect(() => {
     if (latestUnlocked && latestUnlocked.length > 0) {
       const t = setTimeout(() => {
@@ -99,74 +62,16 @@ function GameUI() {
     navigate("/login");
   };
 
-  const styles = {
-    pageContainer: {
-      padding: "20px",
-      fontFamily: "Arial, sans-serif",
-      backgroundColor: "#f5f5f5",
-      minHeight: "100vh",
-      maxWidth: "1200px",
-      margin: "0 auto",
-    },
-    topSection: {
-      marginBottom: "30px",
-    },
-    contentContainer: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr",
-      gap: "20px",
-    },
-    leftColumn: {
-      backgroundColor: "white",
-      padding: "20px",
-      borderRadius: "8px",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-    },
-    rightColumn: {
-      backgroundColor: "white",
-      padding: "20px",
-      borderRadius: "8px",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-    },
-    unlockBanner: {
-      backgroundColor: "#fffbeb",
-      border: "1px solid #ffe58f",
-      padding: "10px 14px",
-      borderRadius: "6px",
-      margin: "12px 0",
-      textAlign: "center",
-      color: "#8a6d1b",
-      fontWeight: "600",
-    },
-    achievementPopup: {
-      position: "fixed",
-      top: 40,
-      left: "50%",
-      transform: "translateX(-50%)",
-      background: "#fff",
-      border: "2px solid #27ae60",
-      borderRadius: 10,
-      padding: "18px 32px",
-      boxShadow: "0 4px 24px rgba(0,0,0,0.18)",
-      zIndex: 2000,
-      textAlign: "center",
-      minWidth: 280,
-      maxWidth: 400,
-      fontFamily: "inherit",
-      animation: "fadeInScale 0.3s",
-    },
-  };
-
-  // Fetch achievements when modal is opened
-  // (No useEffect should return JSX. The main component should return the JSX below.)
-  // ...existing code...
-
-  if (loading || !player) {
-    return <LoadingSpinner />;
+  if (loading || upgradesLoading) {
+    return <LoadingSpinner message="Loading game data..." />;
   }
 
-  if (error) {
-    return <div style={{ padding: "20px", color: "red" }}>Error: {error}</div>;
+  if (error || !player) {
+    return (
+      <div style={{ padding: "20px", textAlign: "center", color: "#e74c3c" }}>
+        Error loading game: {error || "Unknown error"}
+      </div>
+    );
   }
 
   return (
@@ -175,82 +80,240 @@ function GameUI() {
         username={player.user?.username || "Player"}
         clickPower={player.clickPower}
         onLogout={handleLogout}
-        onShowAchievements={() => setAchievementsOpen(true)}
       />
 
-      <AchievementsModal
-        open={achievementsOpen}
-        onClose={() => setAchievementsOpen(false)}
-        achievements={achievements}
-        loading={achievementsLoading}
-      />
-
-      {/* Achievement unlocked popup */}
-      {achievementPopup && (
-        <div style={styles.achievementPopup}>
-          <div
-            style={{
-              fontWeight: "bold",
-              fontSize: 18,
-              color: "#27ae60",
-              marginBottom: 4,
-            }}
-          >
-            Achievement Unlocked!
-          </div>
-          <div style={{ fontWeight: "bold", fontSize: 16 }}>
-            {achievementPopup.name}
-          </div>
-          <div style={{ fontSize: 14, color: "#555" }}>
-            {achievementPopup.description}
-          </div>
-        </div>
-      )}
-
-      {/* Unlock notification banner */}
       {latestUnlocked && latestUnlocked.length > 0 && (
         <div style={styles.unlockBanner}>
           New upgrades unlocked: {latestUnlocked.join(", ")}
         </div>
       )}
 
-      {/* Auto-dismiss handled in useEffect above */}
 
       <div style={styles.topSection}>
-        {/* ⭐ RESOURCES DISPLAY - Top Bar */}
-        <ResourcesDisplay resources={player.resources} />
-        {/* ⭐ PROGRESS BAR - Below Resources */}
-        {/* Progress is now based on clickPower, capped at 100 */}
         <ProgressBar progress={Math.min(player.clickPower || 0, 100)} />
+        <ResourcesDisplay resources={player.resources} />
+        <button
+          onClick={() => setShowUpgradesModal(true)}
+          style={styles.upgradesButton}
+          onMouseEnter={(e) => {
+            e.target.style.transform = "scale(1.05)";
+            e.target.style.filter = "brightness(1.2)";
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = "scale(1)";
+            e.target.style.filter = "brightness(1)";
+          }}
+        >
+          UPGRADES
+        </button>
       </div>
 
       <div style={styles.contentContainer}>
-        <div style={styles.leftColumn}>
-          <div>
-            <h3 style={{ marginBottom: "15px" }}>🏗️ Buildings</h3>
-            <BuildingClickerButtons
-              onClickBuilding={fetchPlayerData} // ⭐ This should trigger refresh
-              disabled={false}
-            />
-          </div>
+        <div style={styles.gameplayArea}>
+          <BuildingClickerButtons
+            onClickBuilding={fetchPlayerData} 
+            disabled={false}
+          />
         </div>
-        <div style={styles.rightColumn}>
-          <div>
-            <h3 style={{ marginBottom: "15px" }}>⭐ Upgrades</h3>
-            {/* Step 2: Pass purchase handler to UpgradesShop for upgrade buying */}
+      </div>
+
+      {showUpgradesModal && (
+        <div
+          style={styles.modalOverlay}
+          onClick={() => setShowUpgradesModal(false)}
+        >
+          <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setShowUpgradesModal(false)}
+              style={styles.closeButton}
+              onMouseEnter={(e) => {
+                e.target.style.transform = "scale(1.1)";
+                e.target.style.filter = "brightness(1.2)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = "scale(1)";
+                e.target.style.filter = "brightness(1)";
+              }}
+            >
+              ✕
+            </button>
+
             <UpgradesShop
               upgrades={upgrades}
               playerUpgrades={player.upgrades || []}
               playerUnlockedUpgrades={player.unlockedUpgrades || []}
               playerResources={player.resources}
               onUpgradePurchased={handleUpgradePurchase}
-              progressPercent={Math.min(((player.power || 0) / 500) * 100, 100)}
             />
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
+
+const styles = {
+  pageContainer: {
+    fontFamily: "'Press Start 2P', cursive, sans-serif",
+    backgroundColor: "#0a0a15",
+    minHeight: "100vh",
+    maxHeight: "100vh",
+    overflow: "hidden",
+    display: "flex",
+    flexDirection: "column",
+  },
+  topSection: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: "20px",
+    padding: "15px 30px",
+    flexShrink: 0,
+  },
+  upgradesButton: {
+    padding: "8px 12px",
+    backgroundColor: "rgba(26, 26, 46, 0.95)",
+    color: "#FFD700",
+    border: "2px solid #FFD700",
+    fontFamily: "'Press Start 2P', cursive, sans-serif",
+    fontSize: "10px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    letterSpacing: "0.5px",
+    whiteSpace: "nowrap",
+    transition: "all 0.2s ease",
+  },
+  contentContainer: {
+    padding: "0 30px 30px",
+    flex: 1,
+    overflow: "hidden",
+    display: "grid",
+    gridTemplateColumns: "1fr",
+    gap: "20px",
+  },
+  gameplayArea: {
+    position: "relative",
+    backgroundImage: `url(${require("../images/background/Background.png")})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    flex: 1,
+    overflow: "hidden",
+    userSelect: "none",
+    WebkitUserSelect: "none",
+    MozUserSelect: "none",
+    msUserSelect: "none",
+  },
+  modalOverlay: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1000,
+  },
+  modalContent: {
+    position: "relative",
+    backgroundColor: "rgba(26, 26, 46, 0.98)",
+    border: "3px solid #FFD700",
+    padding: "20px",
+    maxWidth: "600px",
+    maxHeight: "80vh",
+    overflow: "auto",
+    boxShadow: "0 0 30px rgba(255, 215, 0, 0.3)",
+  },
+  closeButton: {
+    position: "absolute",
+    top: "10px",
+    right: "10px",
+    width: "28px",
+    height: "28px",
+    padding: 0,
+    backgroundColor: "transparent",
+    color: "#FFD700",
+    border: "2px solid #FFD700",
+    fontFamily: "'Press Start 2P', cursive, sans-serif",
+    fontSize: "14px",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    transition: "all 0.2s ease",
+  },
+  unlockBanner: {
+    backgroundColor: "rgba(26, 26, 46, 0.95)",
+    border: "2px solid #FFD700",
+    color: "#FFD700",
+    padding: "10px 14px",
+    margin: "12px 0",
+    textAlign: "center",
+    fontWeight: "600",
+    boxShadow: "0 0 10px rgba(255, 215, 0, 0.3)",
+    letterSpacing: "0.5px",
+  },
+  upgradesButton: {
+    backgroundColor: "rgba(26, 26, 46, 0.95)",
+    color: "#FFD700",
+    border: "2px solid #FFD700",
+    padding: "8px 12px",
+    borderRadius: "0",
+    fontFamily: "'Press Start 2P', cursive, sans-serif",
+    fontSize: "10px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    letterSpacing: "0.5px",
+    whiteSpace: "nowrap",
+    boxShadow:
+      "0 4px 12px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(255, 215, 0, 0.1)",
+  },
+  modalOverlay: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1000,
+  },
+  modalContent: {
+    backgroundColor: "rgba(26, 26, 46, 0.98)",
+    border: "3px solid #FFD700",
+    borderRadius: "0",
+    padding: "20px",
+    maxWidth: "600px",
+    maxHeight: "80vh",
+    overflow: "auto",
+    position: "relative",
+    boxShadow:
+      "0 8px 32px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(255, 215, 0, 0.1)",
+  },
+  closeButton: {
+    position: "absolute",
+    top: "10px",
+    right: "10px",
+    backgroundColor: "transparent",
+    color: "#FFD700",
+    border: "2px solid #FFD700",
+    width: "30px",
+    height: "30px",
+    fontSize: "16px",
+    cursor: "pointer",
+    fontWeight: "bold",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: "0",
+    fontFamily: "'Press Start 2P', cursive, sans-serif",
+    transition: "all 0.2s ease",
+  },
+};
 
 export default GameUI;

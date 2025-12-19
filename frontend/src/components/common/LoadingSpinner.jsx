@@ -1,6 +1,3 @@
-// Loading Spinner Component - Displays spinning animation with optional message during data loading
-// Used across the app to indicate loading states
-
 import React from "react";
 
 const LoadingSpinner = ({ message = "Loading..." }) => {
