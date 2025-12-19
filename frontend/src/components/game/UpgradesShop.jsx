@@ -1,20 +1,26 @@
+
 // Upgrades Shop Component - Grid of available upgrades for purchase with affordability checks
+// Step 1: Integrate buyUpgrade API via handler from parent
+// Step 2: UI wiring for upgrade purchase (buy button, handler, disables)
+// Step 3: Owned state UI (disable, show '✓ Owned', fade card)
 
 import React from "react";
 
 function UpgradesShop({
-  upgrades = [],
-  playerUpgrades = [],
-  playerResources = { gold: 0, wood: 0, stone: 0, wheat: 0 },
-  onUpgradePurchased = () => {},
+  upgrades = [], // Step 1: List of upgrades from backend
+  playerUpgrades = [], // Step 3: List of owned upgrade IDs
+  playerResources = { gold: 0, wood: 0, stone: 0, wheat: 0 }, // Step 2: Used for affordability check
+  onUpgradePurchased = () => {}, // Step 1/2: Handler from parent to trigger purchase
 }) {
-  // Check if player can afford upgrade
+  // Step 2: Receives purchase handler from parent (GameUI)
+  // Step 2: Handles buy button click and disables for owned/unaffordable upgrades
+  // Step 2: (Optional) Add pending state for async purchase
+  // Step 2: Check if player can afford upgrade
   const canAfford = (upgrade) => {
-    // Safety check - if playerResources is undefined, return false
+    // Step 2: Check if player has enough resources for this upgrade
     if (!playerResources || !upgrade.cost) {
       return false;
     }
-
     return (
       playerResources.gold >= (upgrade.cost.gold || 0) &&
       playerResources.wood >= (upgrade.cost.wood || 0) &&
@@ -23,23 +29,23 @@ function UpgradesShop({
     );
   };
 
-  // Check if upgrade is already owned
-  const isOwned = (upgradeId) => playerUpgrades.includes(upgradeId);
+  // Step 3: Check if upgrade is already owned (used to disable button and show owned state)
+  const isOwned = (upgradeType) => playerUpgrades.includes(upgradeType);
 
+  // Step 2: Handle buy button click, call parent handler (triggers buyUpgrade API via parent)
+  // (Optional: Add pending state here if you want to show loading per-upgrade)
   const handleBuyClick = async (upgrade) => {
     if (!canAfford(upgrade)) {
       alert("Not enough resources!");
       return;
     }
-
-    if (isOwned(upgrade._id)) {
+    if (isOwned(upgrade.type)) {
       alert("Already owned!");
       return;
     }
-
     try {
       // Call the purchase handler from parent
-      await onUpgradePurchased(upgrade._id);
+      await onUpgradePurchased(upgrade.type);
     } catch (err) {
       console.error("Error purchasing upgrade:", err);
       alert("Failed to purchase upgrade");
@@ -49,21 +55,25 @@ function UpgradesShop({
   return (
     <div style={styles.shopContainer}>
       <h2 style={styles.title}>⚔️ Upgrades</h2>
-
       {upgrades && upgrades.length > 0 ? (
         <div style={styles.upgradesGrid}>
           {upgrades.map((upgrade) => (
             <div
-              key={upgrade._id}
+              key={upgrade.type}
               style={{
                 ...styles.upgradeCard,
-                opacity: isOwned(upgrade._id) ? 0.5 : 1,
+                opacity: isOwned(upgrade.type) ? 0.5 : 1,
               }}
             >
-              <h4 style={styles.upgradeName}>{upgrade.name}</h4>
+              <h4 style={styles.upgradeName}>
+                {upgrade.name}
+                <span style={{ fontWeight: "normal", fontSize: "14px", color: "#27ae60", marginLeft: "8px" }}>
+                  +{upgrade.amount} Power
+                </span>
+              </h4>
               <p style={styles.upgradeDesc}>{upgrade.description}</p>
-
               <div style={styles.costContainer}>
+                {/* Step 2: Show upgrade cost (affordability) */}
                 {upgrade.cost.gold > 0 && (
                   <span style={styles.cost}>💰 {upgrade.cost.gold}</span>
                 )}
@@ -77,20 +87,22 @@ function UpgradesShop({
                   <span style={styles.cost}>🌾 {upgrade.cost.wheat}</span>
                 )}
               </div>
-
+              {/* Step 2: Buy button disables for owned/unaffordable upgrades */}
+              {/* Step 3: Show '✓ Owned' and fade card if owned */}
               <button
                 onClick={() => handleBuyClick(upgrade)}
-                disabled={!canAfford(upgrade) || isOwned(upgrade._id)}
+                disabled={!canAfford(upgrade) || isOwned(upgrade.type)}
                 style={{
                   ...styles.buyButton,
-                  opacity: !canAfford(upgrade) || isOwned(upgrade._id) ? 0.5 : 1,
+                  opacity: !canAfford(upgrade) || isOwned(upgrade.type) ? 0.5 : 1,
                   cursor:
-                    !canAfford(upgrade) || isOwned(upgrade._id)
+                    !canAfford(upgrade) || isOwned(upgrade.type)
                       ? "not-allowed"
                       : "pointer",
                 }}
               >
-                {isOwned(upgrade._id) ? "✓ Owned" : "Buy"}
+                {/* Step 3: Show owned indicator on button */}
+                {isOwned(upgrade.type) ? "✓ Owned" : "Buy"}
               </button>
             </div>
           ))}

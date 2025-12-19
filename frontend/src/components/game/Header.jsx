@@ -3,7 +3,7 @@
 
 import React from "react";
 
-const Header = ({ username, onLogout }) => {
+const Header = ({ username, clickPower, onLogout }) => {
   return (
     <div
       style={{
@@ -20,7 +20,10 @@ const Header = ({ username, onLogout }) => {
       <div>
         <h1 style={{ margin: 0, fontSize: "24px" }}>⚔️ Castle Clicker</h1>
         <p style={{ margin: "5px 0 0 0", fontSize: "14px", opacity: 0.8 }}>
-          Welcome, {username}!
+          Welcome, {username}!<br />
+          <span style={{ fontWeight: "bold", color: "#ffd700", display: "flex", alignItems: "center", gap: "6px" }}>
+            <span role="img" aria-label="Sword">🗡️</span> Power: {clickPower}
+          </span>
         </p>
       </div>
       <button

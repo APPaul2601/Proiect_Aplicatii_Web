@@ -1,3 +1,7 @@
+// Step 1: Integrate buyUpgrade API
+// - Fetch upgrades from backend on mount
+// - Pass upgrades and purchase handler to UpgradesShop
+// - Refresh player data after purchase
 // Game Page (GameUI) - Main game interface composing all components
 
 import React, { useState, useEffect } from "react";
@@ -9,28 +13,39 @@ import BuildingClickerButtons from "../components/game/BuildingClickerButtons";
 import UpgradesShop from "../components/game/UpgradesShop";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { useGameData } from "../hooks/useGameData";
-import { getAllUpgrades } from "../api/upgradeAPI";
+import { getAllUpgrades, buyUpgrade } from "../api/upgradeAPI";
 
 function GameUI() {
+      // Step 2: Handler for purchasing upgrades (calls buyUpgrade and refreshes player data)
+      // This will be passed to UpgradesShop
+      const handleUpgradePurchase = async (upgradeType) => {
+        try {
+          await buyUpgrade(upgradeType);
+          await fetchPlayerData();
+        } catch (err) {
+          console.error('Upgrade purchase failed:', err);
+        }
+      };
+    // Fetch upgrades from backend when component mounts (Step 1)
   const navigate = useNavigate();
   const { player, loading, error, fetchPlayerData } = useGameData();
   const [upgrades, setUpgrades] = useState([]);
   const [upgradesLoading, setUpgradesLoading] = useState(true);
 
   useEffect(() => {
-    fetchUpgrades();
+    // Fetch upgrades on mount
+    const fetchUpgradesData = async () => {
+      try {
+        const data = await getAllUpgrades();
+        setUpgrades(data);
+        setUpgradesLoading(false);
+      } catch (err) {
+        console.error("Error fetching upgrades:", err);
+        setUpgradesLoading(false);
+      }
+    };
+    fetchUpgradesData();
   }, []);
-
-  const fetchUpgrades = async () => {
-    try {
-      const data = await getAllUpgrades();
-      setUpgrades(data);
-      setUpgradesLoading(false);
-    } catch (err) {
-      console.error("Error fetching upgrades:", err);
-      setUpgradesLoading(false);
-    }
-  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -53,15 +68,16 @@ function GameUI() {
     <div style={styles.pageContainer}>
       <Header
         username={player.user?.username || "Player"}
+        clickPower={player.clickPower}
         onLogout={handleLogout}
       />
 
       <div style={styles.topSection}>
         {/* ⭐ RESOURCES DISPLAY - Top Bar */}
         <ResourcesDisplay resources={player.resources} />
-
         {/* ⭐ PROGRESS BAR - Below Resources */}
-        <ProgressBar progress={player.castleProgress} />
+        {/* Progress is now based on clickPower, capped at 100 */}
+        <ProgressBar progress={Math.min((player.clickPower || 0), 100)} />
       </div>
 
       <div style={styles.contentContainer}>
@@ -72,14 +88,14 @@ function GameUI() {
             disabled={false}
           />
         </div>
-
         <div style={styles.rightColumn}>
           <h3 style={{ marginBottom: "15px" }}>⭐ Upgrades</h3>
+          {/* Step 2: Pass purchase handler to UpgradesShop for upgrade buying */}
           <UpgradesShop
             upgrades={upgrades}
             playerUpgrades={player.upgrades || []}
             playerResources={player.resources}
-            onUpgradePurchased={fetchPlayerData}
+            onUpgradePurchased={handleUpgradePurchase}
           />
         </div>
       </div>
