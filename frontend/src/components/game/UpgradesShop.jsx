@@ -1,24 +1,13 @@
-
-// Upgrades Shop Component - Grid of available upgrades for purchase with affordability checks
-// Step 1: Integrate buyUpgrade API via handler from parent
-// Step 2: UI wiring for upgrade purchase (buy button, handler, disables)
-// Step 3: Owned state UI (disable, show '✓ Owned', fade card)
-
 import React from "react";
 
 function UpgradesShop({
-  upgrades = [], // Step 1: List of upgrades from backend
-  playerUpgrades = [], // Step 3: List of owned upgrade IDs
-  playerUnlockedUpgrades = [], // List of upgrade types unlocked for player
-  playerResources = { gold: 0, wood: 0, stone: 0, wheat: 0 }, // Step 2: Used for affordability check
-  onUpgradePurchased = () => {}, // Step 1/2: Handler from parent to trigger purchase
+  upgrades = [],
+  playerUpgrades = [],
+  playerUnlockedUpgrades = [],
+  playerResources = { gold: 0, wood: 0, stone: 0, wheat: 0 },
+  onUpgradePurchased = () => {},
 }) {
-  // Step 2: Receives purchase handler from parent (GameUI)
-  // Step 2: Handles buy button click and disables for owned/unaffordable upgrades
-  // Step 2: (Optional) Add pending state for async purchase
-  // Step 2: Check if player can afford upgrade
   const canAfford = (upgrade) => {
-    // Step 2: Check if player has enough resources for this upgrade
     if (!playerResources || !upgrade.cost) {
       return false;
     }
@@ -30,25 +19,19 @@ function UpgradesShop({
     );
   };
 
-  // Step 3: Check if upgrade is already owned (used to disable button and show owned state)
   const isOwned = (upgradeType) => {
     if (!playerUpgrades) return false;
-    // support both array of strings and array of objects like { type, level }
     if (playerUpgrades.length > 0 && typeof playerUpgrades[0] === "object") {
       return playerUpgrades.some((u) => u.type === upgradeType);
     }
     return playerUpgrades.includes(upgradeType);
   };
 
-  // Step 4: Check if upgrade is unlocked for this player
   const isUnlocked = (upgradeType) => {
-    // If unlocked list not provided, treat as locked to be safe
     if (!playerUnlockedUpgrades) return false;
     return playerUnlockedUpgrades.includes(upgradeType);
   };
 
-  // Step 2: Handle buy button click, call parent handler (triggers buyUpgrade API via parent)
-  // (Optional: Add pending state here if you want to show loading per-upgrade)
   const handleBuyClick = async (upgrade) => {
     if (!canAfford(upgrade)) {
       alert("Not enough resources!");
@@ -59,10 +42,9 @@ function UpgradesShop({
       return;
     }
     try {
-      // Call the purchase handler from parent
       await onUpgradePurchased(upgrade.type);
     } catch (err) {
-      console.error("Error purchasing upgrade:", err);
+      console.error("Error purchasing upgrade:", err.message);
       alert("Failed to purchase upgrade");
     }
   };
@@ -77,22 +59,28 @@ function UpgradesShop({
               key={upgrade.type}
               style={{
                 ...styles.upgradeCard,
-                opacity: isOwned(upgrade.type) || !isUnlocked(upgrade.type) ? 0.5 : 1,
+                opacity:
+                  isOwned(upgrade.type) || !isUnlocked(upgrade.type) ? 0.5 : 1,
               }}
             >
               <h4 style={styles.upgradeName}>
                 {upgrade.name}
-                <span style={{ fontWeight: "normal", fontSize: "14px", color: "#27ae60", marginLeft: "8px" }}>
+                <span
+                  style={{
+                    fontWeight: "normal",
+                    fontSize: "14px",
+                    color: "#27ae60",
+                    marginLeft: "8px",
+                  }}
+                >
                   +{upgrade.amount} Power
                 </span>
               </h4>
               <p style={styles.upgradeDesc}>{upgrade.description}</p>
-              {/* Show lock badge if not unlocked */}
               {!isUnlocked(upgrade.type) && (
-                <div style={styles.lockBadge}>🔒 Locked (Stage {upgrade.stage || "?"})</div>
+                <div style={styles.lockBadge}>🔒 Locked</div>
               )}
               <div style={styles.costContainer}>
-                {/* Step 2: Show upgrade cost (affordability) */}
                 {upgrade.cost.gold > 0 && (
                   <span style={styles.cost}>💰 {upgrade.cost.gold}</span>
                 )}
@@ -106,22 +94,34 @@ function UpgradesShop({
                   <span style={styles.cost}>🌾 {upgrade.cost.wheat}</span>
                 )}
               </div>
-              {/* Step 2: Buy button disables for owned/unaffordable upgrades */}
-              {/* Step 3: Show '✓ Owned' and fade card if owned */}
               <button
                 onClick={() => handleBuyClick(upgrade)}
-                disabled={!canAfford(upgrade) || isOwned(upgrade.type) || !isUnlocked(upgrade.type)}
+                disabled={
+                  !canAfford(upgrade) ||
+                  isOwned(upgrade.type) ||
+                  !isUnlocked(upgrade.type)
+                }
                 style={{
                   ...styles.buyButton,
-                  opacity: !canAfford(upgrade) || isOwned(upgrade.type) || !isUnlocked(upgrade.type) ? 0.5 : 1,
+                  opacity:
+                    !canAfford(upgrade) ||
+                    isOwned(upgrade.type) ||
+                    !isUnlocked(upgrade.type)
+                      ? 0.5
+                      : 1,
                   cursor:
-                    !canAfford(upgrade) || isOwned(upgrade.type) || !isUnlocked(upgrade.type)
+                    !canAfford(upgrade) ||
+                    isOwned(upgrade.type) ||
+                    !isUnlocked(upgrade.type)
                       ? "not-allowed"
                       : "pointer",
                 }}
               >
-                {/* Step 3: Show owned indicator on button */}
-                {isOwned(upgrade.type) ? "✓ Owned" : !isUnlocked(upgrade.type) ? "Locked" : "Buy"}
+                {isOwned(upgrade.type)
+                  ? "✓ Owned"
+                  : !isUnlocked(upgrade.type)
+                  ? "Locked"
+                  : "Buy"}
               </button>
             </div>
           ))}
@@ -135,67 +135,82 @@ function UpgradesShop({
 
 const styles = {
   shopContainer: {
-    padding: "20px",
-    backgroundColor: "#f9f9f9",
-    borderRadius: "8px",
-    border: "1px solid #ddd",
+    padding: 0,
+    backgroundColor: "transparent",
+    border: "none",
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
+    overflow: "auto",
   },
   title: {
-    marginTop: 0,
-    marginBottom: "20px",
-    color: "#333",
-    textAlign: "center",
+    display: "none",
   },
   upgradesGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-    gap: "15px",
+    gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+    gap: "10px",
   },
   upgradeCard: {
-    backgroundColor: "white",
-    padding: "15px",
-    borderRadius: "6px",
-    border: "1px solid #e0e0e0",
+    backgroundColor: "rgba(26, 26, 46, 0.6)",
+    padding: "12px",
+    border: "2px solid #FFD700",
     textAlign: "center",
     transition: "transform 0.2s",
+    boxShadow: "0 0 10px rgba(255, 215, 0, 0.2)",
   },
   upgradeName: {
     margin: "0 0 8px 0",
-    fontSize: "16px",
-    color: "#333",
+    fontSize: "10px",
+    color: "#FFD700",
+    fontFamily: "'Press Start 2P', cursive, sans-serif",
   },
   upgradeDesc: {
     margin: "0 0 10px 0",
-    fontSize: "12px",
-    color: "#666",
+    fontSize: "8px",
+    color: "#FFD700",
+    fontFamily: "'Press Start 2P', cursive, sans-serif",
   },
   costContainer: {
     display: "flex",
     flexWrap: "wrap",
-    gap: "8px",
+    gap: "4px",
     justifyContent: "center",
     marginBottom: "12px",
   },
   cost: {
-    fontSize: "12px",
-    backgroundColor: "#f0f0f0",
-    padding: "4px 8px",
-    borderRadius: "4px",
+    fontSize: "8px",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    padding: "4px 6px",
+    border: "1px solid #FFD700",
+    color: "#FFD700",
+    fontFamily: "'Press Start 2P', cursive, sans-serif",
+  },
+  lockBadge: {
+    fontSize: "8px",
+    backgroundColor: "rgba(200, 100, 100, 0.4)",
+    border: "1px solid #FF6B5B",
+    color: "#FF9999",
+    fontFamily: "'Press Start 2P', cursive, sans-serif",
+    padding: "4px 6px",
+    marginBottom: "8px",
   },
   buyButton: {
     width: "100%",
     padding: "8px",
     backgroundColor: "#27ae60",
-    color: "white",
-    border: "none",
-    borderRadius: "4px",
+    color: "#FFD700",
+    border: "2px solid #FFD700",
     cursor: "pointer",
-    fontSize: "14px",
+    fontSize: "9px",
     fontWeight: "bold",
+    fontFamily: "'Press Start 2P', cursive, sans-serif",
+    letterSpacing: "0.5px",
   },
   noUpgrades: {
     textAlign: "center",
-    color: "#999",
+    color: "#FFD700",
+    fontFamily: "'Press Start 2P', cursive, sans-serif",
   },
 };
 

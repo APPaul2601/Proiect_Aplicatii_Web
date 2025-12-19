@@ -1,5 +1,3 @@
-// Register Form Component - Reusable form for user registration with username and password
-// Handles form submission, validation, loading state, and error display
 import React, { useState } from "react";
 import { registerUser } from "../../services/authService";
 

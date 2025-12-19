@@ -1,10 +1,5 @@
-// Progress Bar Component - Shows castle completion progress as percentage from 0-100%
-// Displays a horizontal bar that fills based on progress prop
-
-
 import React, { useMemo } from "react";
 
-// Milestones at every 10%
 const MILESTONES = Array.from({ length: 10 }, (_, i) => (i + 1) * 10);
 const MILESTONE_LABELS = MILESTONES.reduce((acc, val) => {
   if (val === 100) {
@@ -18,7 +13,6 @@ const MILESTONE_LABELS = MILESTONES.reduce((acc, val) => {
 const ProgressBar = ({ progress }) => {
   const progressPercentage = Math.min(progress || 0, 100);
 
-  // Find the highest milestone reached
   const milestone = useMemo(() => {
     for (let i = MILESTONES.length - 1; i >= 0; i--) {
       if (progressPercentage >= MILESTONES[i]) {
@@ -29,84 +23,58 @@ const ProgressBar = ({ progress }) => {
   }, [progressPercentage]);
 
   return (
-    <div style={{ marginBottom: "20px" }}>
-      <div
+    <div
+      style={{
+        display: "flex",
+        gap: "12px",
+        flex: 1,
+        alignItems: "center",
+        flexShrink: 0,
+      }}
+    >
+      <label
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginBottom: "8px",
+          fontSize: "10px",
+          letterSpacing: "0.5px",
+          fontFamily: "'Press Start 2P', cursive, sans-serif",
+          color: "#FFD700",
+          minWidth: "auto",
+          whiteSpace: "nowrap",
         }}
       >
-        <label style={{ fontWeight: "bold", fontSize: "14px" }}>
-          Castle Progress
-        </label>
-        <span style={{ fontSize: "14px", color: "#666" }}>
-          {progressPercentage.toFixed(1)}%
-        </span>
-      </div>
+        Castle Progress
+      </label>
       <div
         style={{
-          width: "100%",
+          flex: 1,
           height: "24px",
-          backgroundColor: "#e0e0e0",
-          borderRadius: "12px",
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          border: "2px solid #FFD700",
           overflow: "hidden",
-          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+          boxShadow: "0 0 10px rgba(255, 215, 0, 0.2)",
           position: "relative",
         }}
       >
-        {/* Progress fill */}
         <div
           style={{
             height: "100%",
             width: `${progressPercentage}%`,
-            backgroundColor: progressPercentage < 50 ? "#e74c3c" : "#2ecc71",
+            backgroundColor: progressPercentage < 50 ? "#FF6B35" : "#4ECB71",
             transition: "width 0.3s ease",
-            borderRadius: "12px 0 0 12px",
           }}
         />
-        {/* Milestone markers */}
-        {MILESTONES.map((milestone, idx) => (
-          <div
-            key={milestone}
-            style={{
-              position: "absolute",
-              left: `calc(${milestone}% - 10px)`,
-              top: 0,
-              height: "100%",
-              width: "0",
-              borderLeft: "2px dashed #888",
-              zIndex: 2,
-              pointerEvents: "none",
-            }}
-          >
-            <span
-              style={{
-                position: "absolute",
-                top: "-22px",
-                left: "-12px",
-                fontSize: "11px",
-                color: "#888",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {milestone}%
-            </span>
-          </div>
-        ))}
       </div>
-      {/* Milestone message */}
-      {milestone && progressPercentage >= milestone && (
-        <div style={{
-          marginTop: "8px",
-          color: milestone === 100 ? "#2ecc71" : "#2980b9",
-          fontWeight: "bold",
-          fontSize: "15px",
-          textAlign: "center",
-        }}>
-          {MILESTONE_LABELS[milestone]}
-        </div>
-      )}
+      <span
+        style={{
+          fontSize: "10px",
+          color: "#FFD700",
+          minWidth: "40px",
+          fontFamily: "'Press Start 2P', cursive, sans-serif",
+          textAlign: "right",
+        }}
+      >
+        {progressPercentage.toFixed(0)}%
+      </span>
     </div>
   );
 };

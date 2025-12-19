@@ -1,16 +1,14 @@
-// Initial seed data for buildings - populates MongoDB on first run
-
 module.exports = [
   {
     type: "castle",
-    name: "🏰 Castle",
+    name: "Castle",
     icon: "🏰",
     description: "Click to earn Gold",
     resourceType: "gold",
   },
   {
     type: "quarry",
-    name: "⛏️ Quarry",
+    name: "Quarry",
     icon: "⛏️",
     description: "Click to earn Stone",
     resourceType: "stone",
@@ -24,7 +22,7 @@ module.exports = [
   },
   {
     type: "wheat_field",
-    name: "🌾 Wheat Field",
+    name: "Wheat Field",
     icon: "🌾",
     description: "Click to earn Wheat",
     resourceType: "wheat",

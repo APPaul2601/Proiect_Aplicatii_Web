@@ -1,5 +1,3 @@
-// Initial seed data for upgrades - populates MongoDB on first run
-
 module.exports = [
   {
     type: "sharper_sword",
