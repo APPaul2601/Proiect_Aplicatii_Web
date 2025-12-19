@@ -41,7 +41,15 @@ const playerStatsSchema = new mongoose.Schema({
   firstUpgradeBought: {
     type: Date,
     default: null  // When player bought first upgrade
-  }
+  },
+
+  // ===== ACHIEVEMENTS =====
+  achievements: [
+    {
+      type: String, // achievement type/id
+      required: true
+    }
+  ]
   
 }, { timestamps: true, collection: 'playerstats' });
 

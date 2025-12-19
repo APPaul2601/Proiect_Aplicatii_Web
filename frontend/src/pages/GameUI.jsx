@@ -7,6 +7,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/game/Header";
+import AchievementsModal from "../components/game/AchievementsModal";
+import { getAllAchievements, checkAndUnlockAchievements } from "../api/achievementAPI";
 import ResourcesDisplay from "../components/game/ResourcesDisplay";
 import ProgressBar from "../components/game/ProgressBar";
 import BuildingClickerButtons from "../components/game/BuildingClickerButtons";
@@ -16,19 +18,34 @@ import { useGameData } from "../hooks/useGameData";
 import { getAllUpgrades, buyUpgrade } from "../api/upgradeAPI";
 
 function GameUI() {
-      // Step 2: Handler for purchasing upgrades (calls buyUpgrade and refreshes player data)
-      // This will be passed to UpgradesShop
-      const handleUpgradePurchase = async (upgradeType) => {
-        try {
-          await buyUpgrade(upgradeType);
-          await fetchPlayerData();
-        } catch (err) {
-          console.error('Upgrade purchase failed:', err);
-        }
-      };
+  const [achievementPopup, setAchievementPopup] = useState(null);
+  // Handler for purchasing upgrades (calls buyUpgrade and refreshes player data)
+  const handleUpgradePurchase = async (upgradeType) => {
+    try {
+      await buyUpgrade(upgradeType);
+      await fetchPlayerData();
+      // Only check for achievements if purchase succeeded
+      const result = await checkAndUnlockAchievements({ upgradeAny: 1 });
+      if (result && result.newlyUnlocked && result.newlyUnlocked.length > 0) {
+        // Show popup for each newly unlocked achievement (show first, then auto-dismiss)
+        const achievement = result.newlyUnlocked[0];
+        setAchievementPopup({
+          name: achievement.name,
+          description: achievement.description
+        });
+        setTimeout(() => setAchievementPopup(null), 4000);
+      }
+    } catch (err) {
+      console.error('Upgrade purchase failed:', err);
+      alert('Failed to purchase upgrade');
+    }
+  };
     // Fetch upgrades from backend when component mounts (Step 1)
   const navigate = useNavigate();
   const { player, loading, error, fetchPlayerData, latestUnlocked, clearLatestUnlocked } = useGameData();
+  const [achievementsOpen, setAchievementsOpen] = useState(false);
+  const [achievements, setAchievements] = useState([]);
+  const [achievementsLoading, setAchievementsLoading] = useState(false);
   const [upgrades, setUpgrades] = useState([]);
   const [upgradesLoading, setUpgradesLoading] = useState(true);
 
@@ -72,25 +89,34 @@ function GameUI() {
     navigate("/login");
   };
 
-  if (loading || upgradesLoading) {
-    return <LoadingSpinner message="Loading game data..." />;
-  }
 
-  if (error || !player) {
-    return (
-      <div style={{ padding: "20px", textAlign: "center", color: "#e74c3c" }}>
-        Error loading game: {error || "Unknown error"}
-      </div>
-    );
-  }
-
+  // Fetch achievements when modal is opened
+  // (No useEffect should return JSX. The main component should return the JSX below.)
+  // ...existing code...
   return (
     <div style={styles.pageContainer}>
       <Header
         username={player.user?.username || "Player"}
         clickPower={player.clickPower}
         onLogout={handleLogout}
+        onShowAchievements={() => setAchievementsOpen(true)}
       />
+
+      <AchievementsModal
+        open={achievementsOpen}
+        onClose={() => setAchievementsOpen(false)}
+        achievements={achievements}
+        loading={achievementsLoading}
+      />
+
+      {/* Achievement unlocked popup */}
+      {achievementPopup && (
+        <div style={styles.achievementPopup}>
+          <div style={{ fontWeight: 'bold', fontSize: 18, color: '#27ae60', marginBottom: 4 }}>Achievement Unlocked!</div>
+          <div style={{ fontWeight: 'bold', fontSize: 16 }}>{achievementPopup.name}</div>
+          <div style={{ fontSize: 14, color: '#555' }}>{achievementPopup.description}</div>
+        </div>
+      )}
 
       {/* Unlock notification banner */}
       {latestUnlocked && latestUnlocked.length > 0 && (
@@ -111,27 +137,31 @@ function GameUI() {
 
       <div style={styles.contentContainer}>
         <div style={styles.leftColumn}>
-          <h3 style={{ marginBottom: "15px" }}>🏗️ Buildings</h3>
-          <BuildingClickerButtons
-            onClickBuilding={fetchPlayerData}  // ← This should trigger refresh
-            disabled={false}
-          />
+          <div>
+            <h3 style={{ marginBottom: "15px" }}>🏗️ Buildings</h3>
+            <BuildingClickerButtons
+              onClickBuilding={fetchPlayerData}  // ⭐ This should trigger refresh
+              disabled={false}
+            />
+          </div>
         </div>
         <div style={styles.rightColumn}>
-          <h3 style={{ marginBottom: "15px" }}>⭐ Upgrades</h3>
-          {/* Step 2: Pass purchase handler to UpgradesShop for upgrade buying */}
-          <UpgradesShop
-            upgrades={upgrades}
-            playerUpgrades={player.upgrades || []}
-            playerUnlockedUpgrades={player.unlockedUpgrades || []}
-            playerResources={player.resources}
-            onUpgradePurchased={handleUpgradePurchase}
-          />
+          <div>
+            <h3 style={{ marginBottom: "15px" }}>⭐ Upgrades</h3>
+            {/* Step 2: Pass purchase handler to UpgradesShop for upgrade buying */}
+            <UpgradesShop
+              upgrades={upgrades}
+              playerUpgrades={player.upgrades || []}
+              playerUnlockedUpgrades={player.unlockedUpgrades || []}
+              playerResources={player.resources}
+              onUpgradePurchased={handleUpgradePurchase}
+              progressPercent={Math.min(((player.power || 0) / 500) * 100, 100)}
+            />
+          </div>
         </div>
       </div>
     </div>
   );
-}
 
 const styles = {
   pageContainer: {
@@ -163,6 +193,28 @@ const styles = {
     boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
   },
   unlockBanner: {
+      },
+      achievementPopup: {
+        position: 'fixed',
+        top: 40,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        background: '#fff',
+        border: '2px solid #27ae60',
+        borderRadius: 10,
+        padding: '18px 32px',
+        boxShadow: '0 4px 24px rgba(0,0,0,0.18)',
+        zIndex: 2000,
+        textAlign: 'center',
+        minWidth: 280,
+        maxWidth: 400,
+        fontFamily: 'inherit',
+        animation: 'fadeInScale 0.3s',
+      },
+      '@keyframes fadeInScale': {
+        from: { opacity: 0, transform: 'translateX(-50%) scale(0.8)' },
+        to: { opacity: 1, transform: 'translateX(-50%) scale(1)' },
+      },
     backgroundColor: "#fffbeb",
     border: "1px solid #ffe58f",
     padding: "10px 14px",

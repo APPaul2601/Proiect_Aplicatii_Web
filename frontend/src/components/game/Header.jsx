@@ -3,7 +3,8 @@
 
 import React from "react";
 
-const Header = ({ username, clickPower, onLogout }) => {
+
+const Header = ({ username, clickPower, onLogout, onShowAchievements }) => {
   return (
     <div
       style={{
@@ -26,28 +27,44 @@ const Header = ({ username, clickPower, onLogout }) => {
           </span>
         </p>
       </div>
-      <button
-        onClick={onLogout}
-        style={{
-          padding: "10px 20px",
-          backgroundColor: "#e74c3c",
-          color: "white",
-          border: "none",
-          borderRadius: "6px",
-          cursor: "pointer",
-          fontWeight: "bold",
-          fontSize: "14px",
-          transition: "background-color 0.3s ease",
-        }}
-        onMouseEnter={(e) => {
-          e.target.style.backgroundColor = "#c0392b";
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.backgroundColor = "#e74c3c";
-        }}
-      >
-        Logout
-      </button>
+      <div style={{ display: "flex", gap: "10px" }}>
+        <button
+          onClick={onShowAchievements}
+          style={{
+            padding: "10px 16px",
+            backgroundColor: "#27ae60",
+            color: "white",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            fontWeight: "bold",
+            fontSize: "14px",
+            transition: "background-color 0.3s ease",
+          }}
+          onMouseEnter={e => e.target.style.backgroundColor = "#219150"}
+          onMouseLeave={e => e.target.style.backgroundColor = "#27ae60"}
+        >
+          🏆 Achievements
+        </button>
+        <button
+          onClick={onLogout}
+          style={{
+            padding: "10px 20px",
+            backgroundColor: "#e74c3c",
+            color: "white",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            fontWeight: "bold",
+            fontSize: "14px",
+            transition: "background-color 0.3s ease",
+          }}
+          onMouseEnter={e => e.target.style.backgroundColor = "#c0392b"}
+          onMouseLeave={e => e.target.style.backgroundColor = "#e74c3c"}
+        >
+          Logout
+        </button>
+      </div>
     </div>
   );
 };

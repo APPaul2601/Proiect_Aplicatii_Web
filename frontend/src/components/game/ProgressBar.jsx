@@ -1,11 +1,12 @@
-// Progress Bar Component - Shows castle completion progress as percentage from 0-100%
-// Displays a horizontal bar that fills based on progress prop
+// Progress Bar Component - Shows castle completion progress as 0-100% visually
+// Displays a horizontal bar that fills based on progress prop (0-100%)
 
 
 import React, { useMemo } from "react";
 
-// Milestones at every 10%
-const MILESTONES = Array.from({ length: 10 }, (_, i) => (i + 1) * 10);
+// Milestones at every 10% (0-100%)
+const MAX_PROGRESS = 100;
+const MILESTONES = Array.from({ length: MAX_PROGRESS / 10 }, (_, i) => (i + 1) * 10);
 const MILESTONE_LABELS = MILESTONES.reduce((acc, val) => {
   if (val === 100) {
     acc[val] = "Castle Completed!";
@@ -16,7 +17,9 @@ const MILESTONE_LABELS = MILESTONES.reduce((acc, val) => {
 }, {});
 
 const ProgressBar = ({ progress }) => {
-  const progressPercentage = Math.min(progress || 0, 100);
+  // Clamp progress to 0-100 for display
+  const progressValue = Math.max(progress || 0, 0);
+  const progressPercentage = Math.min(progressValue, MAX_PROGRESS);
 
   // Find the highest milestone reached
   const milestone = useMemo(() => {
@@ -60,9 +63,10 @@ const ProgressBar = ({ progress }) => {
           style={{
             height: "100%",
             width: `${progressPercentage}%`,
-            backgroundColor: progressPercentage < 50 ? "#e74c3c" : "#2ecc71",
+            backgroundColor: progressPercentage < 50 ? "#e74c3c" : progressPercentage < 100 ? "#2ecc71" : "#f1c40f",
             transition: "width 0.3s ease",
-            borderRadius: "12px 0 0 12px",
+            borderRadius: progressPercentage >= 100 ? "12px" : "12px 0 0 12px",
+            zIndex: 1,
           }}
         />
         {/* Milestone markers */}

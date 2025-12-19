@@ -50,6 +50,10 @@ app.use("/api/upgrades", require("./routes/upgradeRoutes"));
 // Shop routes (backward compatibility)
 app.use("/api/shop", require("./routes/shopRoutes"));
 
+// Achievement routes (TOKEN REQUIRED)
+// Pattern: GET /api/achievements, POST /api/achievements/check
+app.use("/api/achievements", require("./routes/achievementRoutes"));
+
 // ===== ERROR HANDLING =====
 app.use((err, req, res, next) => {
   console.error("🔥 ERROR:", err.message);

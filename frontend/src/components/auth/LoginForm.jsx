@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { loginUser } from "../../services/authService";
 import { saveToken } from "../../services/storageService";
+import { setToken } from "../../services/api";
 
 const LoginForm = ({ onLoginSuccess }) => {
   const [username, setUsername] = useState("");
@@ -22,6 +23,7 @@ const LoginForm = ({ onLoginSuccess }) => {
       setError("");
       const res = await loginUser(username, password);
       saveToken(res.token);
+      setToken(res.token); // Set token for all axios requests
       onLoginSuccess();
     } catch (err) {
       setError(err.message);

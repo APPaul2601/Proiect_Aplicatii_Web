@@ -1,11 +1,8 @@
 import axios from "axios";
 
-const API = axios.create({
-  baseURL: "http://localhost:5000/api/auth",
-});
 
-const API_PLAYER = axios.create({
-  baseURL: "http://localhost:5000/api/player",
+const API = axios.create({
+  baseURL: "http://localhost:5000/api",
 });
 
 // set token pentru request-uri protejate
@@ -19,5 +16,5 @@ export const setToken = (token) => {
   }
 };
 
-export { API_PLAYER };
+// export { API_PLAYER }; // Removed: not defined
 export default API;
