@@ -17,54 +17,42 @@ const ResourcesDisplay = ({ resources = {} }) => {
   };
 
   return (
-    <div
-      style={{
-        backgroundColor: "#f0f0f0",
-        padding: "15px",
-        borderRadius: "8px",
-        marginBottom: "20px",
-        border: "2px solid #333",
-      }}
-    >
-      <h3 style={{ marginTop: 0, marginBottom: "15px" }}>Resources</h3>
-      
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
-          gap: "10px",
-        }}
-      >
-        {Object.entries(defaultResources).map(([resource, amount]) => (
+    <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
+      {Object.entries(defaultResources).map(([resource, amount]) => (
+        <div
+          key={resource}
+          style={{
+            backgroundColor: "rgba(26, 26, 46, 0.95)",
+            border: "2px solid #FFD700",
+            padding: "6px 8px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "2px",
+            boxShadow: "0 0 10px rgba(255, 215, 0, 0.2)",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: "16px" }}>{resourceEmojis[resource]}</div>
           <div
-            key={resource}
             style={{
-              backgroundColor: "white",
-              padding: "10px",
-              borderRadius: "6px",
-              textAlign: "center",
-              border: "1px solid #ddd",
+              fontSize: "8px",
+              color: "#FFD700",
+              fontFamily: "'Press Start 2P', cursive, sans-serif",
             }}
           >
-            <div style={{ fontSize: "20px", marginBottom: "5px" }}>
-              {resourceEmojis[resource]}
-            </div>
-            <div style={{ fontSize: "12px", color: "#666" }}>
-              {resource.charAt(0).toUpperCase() + resource.slice(1)}
-            </div>
-            <div
-              style={{
-                fontSize: "16px",
-                fontWeight: "bold",
-                color: "#333",
-                marginTop: "5px",
-              }}
-            >
-              {amount || 0}
-            </div>
+            {resource.charAt(0).toUpperCase() + resource.slice(1)}
           </div>
-        ))}
-      </div>
+          <div
+            style={{
+              fontSize: "12px",
+              color: "#FFD700",
+              fontFamily: "'Press Start 2P', cursive, sans-serif",
+            }}
+          >
+            {amount || 0}
+          </div>
+        </div>
+      ))}
     </div>
   );
 };

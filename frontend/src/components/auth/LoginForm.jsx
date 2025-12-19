@@ -1,9 +1,6 @@
-// Login Form Component - UPDATED VERSION 2
-// More robust implementation with better error handling
 import React, { useState } from "react";
 import { loginUser } from "../../services/authService";
 import { saveToken } from "../../services/storageService";
-import { setToken } from "../../services/api";
 
 const LoginForm = ({ onLoginSuccess }) => {
   const [username, setUsername] = useState("");
@@ -13,7 +10,6 @@ const LoginForm = ({ onLoginSuccess }) => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    
     if (!username || !password) {
       setError("Please fill in all fields");
       return;
@@ -22,35 +18,11 @@ const LoginForm = ({ onLoginSuccess }) => {
     try {
       setLoading(true);
       setError("");
-      
-      console.log(`Attempting login for: ${username}`);
-      
-      // Call login API
       const res = await loginUser(username, password);
-      
-      console.log('Login response:', res);
-      
-      if (!res || !res.token) {
-        setError("Invalid response from server");
-        return;
-      }
-      
-      // Save token to localStorage
       saveToken(res.token);
-      
-      // Set token in API headers
-      setToken(res.token);
-      
-      console.log('Token saved and set in API headers');
-      
-      // Give a moment for state to update before navigating
-      setTimeout(() => {
-        onLoginSuccess();
-      }, 50);
-      
+      onLoginSuccess();
     } catch (err) {
-      console.error('Login error:', err);
-      setError(err.message || "Login failed. Please try again.");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -59,48 +31,38 @@ const LoginForm = ({ onLoginSuccess }) => {
   return (
     <form onSubmit={handleLogin} style={{ width: "100%", maxWidth: "400px" }}>
       <div style={{ marginBottom: "15px" }}>
-        <label htmlFor="username" style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>
+        <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>
           Username
         </label>
         <input
-          id="username"
-          name="username"
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           disabled={loading}
-          autoComplete="username"
-          required
           style={{
             width: "100%",
             padding: "10px",
             border: "1px solid #ddd",
             borderRadius: "4px",
             boxSizing: "border-box",
-            fontSize: "16px",
           }}
         />
       </div>
       <div style={{ marginBottom: "15px" }}>
-        <label htmlFor="password" style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>
+        <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>
           Password
         </label>
         <input
-          id="password"
-          name="password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           disabled={loading}
-          autoComplete="current-password"
-          required
           style={{
             width: "100%",
             padding: "10px",
             border: "1px solid #ddd",
             borderRadius: "4px",
             boxSizing: "border-box",
-            fontSize: "16px",
           }}
         />
       </div>
