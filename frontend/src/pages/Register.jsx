@@ -1,3 +1,6 @@
+// Register Page - Displays registration form with username/password fields and link to login
+// On successful registration, navigates to the login page
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import RegisterForm from "../components/auth/RegisterForm";

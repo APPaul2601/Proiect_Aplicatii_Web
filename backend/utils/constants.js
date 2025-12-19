@@ -1,3 +1,11 @@
+// ============================================
+// CONSTANTS - Game Configuration
+// ============================================
+// Centralized game settings and constants
+// Import and use these across the backend
+
+// ===== RESOURCE TYPES =====
+// All resource types in the game
 const RESOURCE_TYPES = {
   GOLD: "gold",
   WOOD: "wood",
@@ -5,6 +13,8 @@ const RESOURCE_TYPES = {
   WHEAT: "wheat",
 };
 
+// ===== BUILDING TYPES =====
+// All building types (UI elements that give resources when clicked)
 const BUILDING_TYPES = {
   CASTLE: "castle",
   QUARRY: "quarry",
@@ -12,6 +22,8 @@ const BUILDING_TYPES = {
   WHEAT_FIELD: "wheat_field",
 };
 
+// ===== UPGRADE EFFECTS =====
+// What upgrades can modify
 const UPGRADE_EFFECTS = {
   CLICK_POWER: "clickPower",
   RESOURCE_COLLECTION: "resourceCollection",
@@ -21,7 +33,8 @@ const UPGRADE_EFFECTS = {
   WOOD_COLLECTION: "woodCollection",
 };
 
-
+// ===== CASTLE STAGES =====
+// What unlocks at each stage
 const STAGE_REQUIREMENTS = {
   1: {
     unlocks: ["sharper_sword", "stronger_swing"],
@@ -41,6 +54,7 @@ const STAGE_REQUIREMENTS = {
   },
 };
 
+// ===== ERROR MESSAGES =====
 const ERROR_MESSAGES = {
   INVALID_USERNAME: "Username must be 3-20 characters",
   INVALID_PASSWORD: "Password must be at least 6 characters",
@@ -54,6 +68,7 @@ const ERROR_MESSAGES = {
   NO_TOKEN: "No authorization token provided",
 };
 
+// ===== SUCCESS MESSAGES =====
 const SUCCESS_MESSAGES = {
   LOGIN_SUCCESS: "Login successful",
   REGISTER_SUCCESS: "User registered successfully",

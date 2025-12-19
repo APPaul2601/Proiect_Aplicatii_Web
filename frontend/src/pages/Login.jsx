@@ -1,3 +1,5 @@
+// Login Page - Displays login form with username/password fields and link to registration
+// On successful login, navigates to the main game page
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import LoginForm from "../components/auth/LoginForm";
