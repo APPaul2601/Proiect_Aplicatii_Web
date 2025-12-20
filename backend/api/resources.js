@@ -1,12 +1,11 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const path = require("path");
 
 // Import config and controllers
-const connectDB = require("../backend/config/db");
-const authController = require("../backend/controllers/authController");
-const authMiddleware = require("../backend/middleware/authMiddleware");
+const connectDB = require("../config/db");
+const progressController = require("../controllers/progressController");
+const authMiddleware = require("../middleware/authMiddleware");
 
 // Create Express app
 const app = express();
@@ -26,9 +25,8 @@ app.use(express.json());
 // Connect to DB
 connectDB();
 
-// Routes
-app.post("/register", authController.register);
-app.post("/login", authController.login);
+// Routes - Resources endpoints
+app.post("/collect", authMiddleware, progressController.collectResource);
 
 // Export for Vercel
 module.exports = app;

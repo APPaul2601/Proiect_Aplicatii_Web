@@ -3,9 +3,10 @@ const express = require("express");
 const cors = require("cors");
 
 // Import config and controllers
-const connectDB = require("../backend/config/db");
-const progressController = require("../backend/controllers/progressController");
-const authMiddleware = require("../backend/middleware/authMiddleware");
+const connectDB = require("../config/db");
+const shopController = require("../controllers/shopController");
+const upgradeController = require("../controllers/upgradeController");
+const authMiddleware = require("../middleware/authMiddleware");
 
 // Create Express app
 const app = express();
@@ -25,10 +26,9 @@ app.use(express.json());
 // Connect to DB
 connectDB();
 
-// Routes - Castle endpoints
-app.get("/", authMiddleware, progressController.getProgress);
-app.post("/click", authMiddleware, progressController.clickCastle);
-app.post("/buy-upgrade", authMiddleware, progressController.buyUpgrade);
+// Routes - Upgrades endpoints
+app.get("/", shopController.getUpgrades);
+app.post("/buy", authMiddleware, upgradeController.buyUpgrade);
 
 // Export for Vercel
 module.exports = app;
