@@ -28,24 +28,28 @@ Authentication: JWT Tokens
 ## Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <repo-url>
 cd Proiect_Aplicatii_Web
 ```
 
 2. Backend setup:
+
 ```bash
 cd backend
 npm install
 ```
 
 Create a `.env` file in the backend folder:
+
 ```
 MONGO_URI=mongodb+srv://<username>:<password>@clickergame-cluster.mongodb.net/clickergame
 JWT_SECRET=your_secret_key_here
 ```
 
 3. Frontend setup:
+
 ```bash
 cd ../frontend
 npm install
@@ -54,11 +58,13 @@ npm install
 ## Running the Application
 
 Start the backend (from backend folder):
+
 ```bash
 npm start
 ```
 
 Start the frontend (from frontend folder, in a new terminal):
+
 ```bash
 npm start
 ```
@@ -76,15 +82,18 @@ Open http://localhost:3000 in your browser.
 ## API Endpoints
 
 Authentication:
+
 - POST /api/auth/register - Create account
 - POST /api/auth/login - Login user
 
 Game:
+
 - GET /api/castle - Get player progress
 - POST /api/castle/click - Click castle
 - POST /api/castle/buy-upgrade - Purchase upgrade
 
 Upgrades:
+
 - GET /api/upgrades - Get all upgrades
 
 ## Project Structure
@@ -117,6 +126,6 @@ Proiect_Aplicatii_Web/
 
 ## Troubleshooting
 
-MongoDB Connection Error: Verify MONGO_URI is correct
+MongoDB Connection Error: Verify MONGODB_URI is correct
 Port Already in Use: Change PORT in backend .env
 Frontend Can't Connect: Ensure backend is running on http://localhost:5000
