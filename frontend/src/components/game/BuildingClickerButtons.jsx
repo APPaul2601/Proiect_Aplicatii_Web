@@ -52,9 +52,12 @@ const BuildingClickerButtons = ({ onClickBuilding, disabled = false }) => {
       }
 
       const responseData = result && result.data ? result.data : result;
+      console.log("Response from API:", responseData);
+      console.log("Unlocked achievements:", responseData?.unlockedAchievements);
 
+      // Pass achievements data to parent if available
       if (onClickBuilding && typeof onClickBuilding === "function") {
-        onClickBuilding();
+        onClickBuilding(responseData?.unlockedAchievements);
       }
 
       setLoading(false);

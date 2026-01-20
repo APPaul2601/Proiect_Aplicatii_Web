@@ -1,5 +1,6 @@
 const Progress = require("../models/game/Progress");
 const Upgrade = require("../models/content/Upgrade");
+const { checkAndUnlockAchievements } = require("./achievementController");
 
 exports.updateCastleProgress = async (req, res) => {
   try {
@@ -79,7 +80,7 @@ exports.getProgress = async (req, res) => {
   try {
     const userId = req.userId;
 
-    let progress = await Progress.findOne({ user: userId });
+    let progress = await Progress.findOne({ user: userId }).populate("user", "username");
 
     if (!progress) {
       progress = new Progress({
@@ -95,6 +96,7 @@ exports.getProgress = async (req, res) => {
         upgrades: [],
       });
       await progress.save();
+      progress = await Progress.findOne({ user: userId }).populate("user", "username");
     }
 
     res.json({ progress });
@@ -120,6 +122,9 @@ exports.clickCastle = async (req, res) => {
 
     await progress.save();
 
+    // Check for achievements
+    const unlockedAchievements = await checkAndUnlockAchievements(userId);
+
     res.json({
       success: true,
       message: "Castle clicked!",
@@ -127,6 +132,7 @@ exports.clickCastle = async (req, res) => {
       resources: progress.resources,
       castleProgress: progress.castleProgress,
       clickPower: progress.clickPower,
+      unlockedAchievements: unlockedAchievements || [],
     });
   } catch (err) {
     console.error("clickCastle error:", err.message);
@@ -170,12 +176,16 @@ exports.collectResource = async (req, res) => {
 
     await progress.save();
 
+    // Check for achievements
+    const unlockedAchievements = await checkAndUnlockAchievements(userId);
+
     res.json({
       success: true,
       message: `Collected ${amount} ${resourceType}`,
       progress,
       resources: progress.resources,
       castleProgress: progress.castleProgress,
+      unlockedAchievements: unlockedAchievements || [],
     });
   } catch (err) {
     console.error("Error in collectResource:", err.message);

@@ -7,6 +7,7 @@ export const useGameData = () => {
   const [error, setError] = useState(null);
   const [latestUnlocked, setLatestUnlocked] = useState([]);
   const [prevUnlocked, setPrevUnlocked] = useState([]);
+  const [achievements, setAchievements] = useState(null);
 
   const fetchPlayerData = async () => {
     try {
@@ -17,6 +18,11 @@ export const useGameData = () => {
       const unlocked = (progress && progress.unlockedUpgrades) || [];
       setPrevUnlocked(unlocked);
       setPlayer(progress);
+      
+      // Extract achievements from response if available
+      if (response.data.unlockedAchievements) {
+        setAchievements(response.data.unlockedAchievements);
+      }
     } catch (err) {
       console.error("Error fetching player data:", err.message);
       setError(err.response?.data?.message || "Failed to load game data");
@@ -28,6 +34,7 @@ export const useGameData = () => {
     fetchPlayerData();
   }, []);
   const clearLatestUnlocked = () => setLatestUnlocked([]);
+  const clearAchievements = () => setAchievements(null);
 
   return {
     player,
@@ -36,5 +43,7 @@ export const useGameData = () => {
     fetchPlayerData,
     latestUnlocked,
     clearLatestUnlocked,
+    achievements,
+    clearAchievements,
   };
 };

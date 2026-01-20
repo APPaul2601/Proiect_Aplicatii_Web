@@ -25,6 +25,7 @@ app.use("/api/castle", require("./routes/castleRoutes"));
 app.use("/api/resources", require("./routes/resourceRoutes"));
 app.use("/api/upgrades", require("./routes/upgradeRoutes"));
 app.use("/api/shop", require("./routes/shopRoutes"));
+app.use("/api/achievements", require("./routes/achievementRoutes"));
 
 app.use((err, req, res, next) => {
   console.error("Error:", err.message);

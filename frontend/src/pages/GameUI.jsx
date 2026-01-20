@@ -5,6 +5,7 @@ import ResourcesDisplay from "../components/game/ResourcesDisplay";
 import ProgressBar from "../components/game/ProgressBar";
 import BuildingClickerButtons from "../components/game/BuildingClickerButtons";
 import UpgradesShop from "../components/game/UpgradesShop";
+import AchievementModal from "../components/game/AchievementModal";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { useGameData } from "../hooks/useGameData";
 import { getAllUpgrades, buyUpgrade } from "../api/upgradeAPI";
@@ -27,10 +28,14 @@ function GameUI() {
     fetchPlayerData,
     latestUnlocked,
     clearLatestUnlocked,
+    achievements,
+    clearAchievements,
   } = useGameData();
   const [upgrades, setUpgrades] = useState([]);
   const [upgradesLoading, setUpgradesLoading] = useState(true);
   const [showUpgradesModal, setShowUpgradesModal] = useState(false);
+  const [unlockedAchievements, setUnlockedAchievements] = useState(null);
+  const [showAchievementModal, setShowAchievementModal] = useState(false);
 
 
   useEffect(() => {
@@ -111,7 +116,15 @@ function GameUI() {
       <div style={styles.contentContainer}>
         <div style={styles.gameplayArea}>
           <BuildingClickerButtons
-            onClickBuilding={fetchPlayerData} 
+            onClickBuilding={(achievements) => {
+              console.log("Achievements received in GameUI:", achievements);
+              if (achievements && achievements.length > 0) {
+                console.log("Setting achievements and showing modal");
+                setUnlockedAchievements(achievements);
+                setShowAchievementModal(true);
+              }
+              fetchPlayerData();
+            }}
             disabled={false}
           />
         </div>
@@ -147,6 +160,16 @@ function GameUI() {
             />
           </div>
         </div>
+      )}
+
+      {showAchievementModal && (
+        <AchievementModal
+          achievements={unlockedAchievements}
+          onClose={() => {
+            setShowAchievementModal(false);
+            setUnlockedAchievements(null);
+          }}
+        />
       )}
     </div>
   );
