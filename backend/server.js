@@ -31,7 +31,8 @@ app.use("/api/achievements", require("./routes/achievementRoutes"));
 // Serve frontend build in production
 const buildPath = path.join(__dirname, "build");
 app.use(express.static(buildPath));
-app.get("*", (req, res) => {
+// Catch-all: serve index.html for any route not starting with /api
+app.get(/^((?!\/api).)*$/, (req, res) => {
   res.sendFile(path.join(buildPath, "index.html"));
 });
 
