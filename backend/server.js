@@ -27,6 +27,14 @@ app.use("/api/upgrades", require("./routes/upgradeRoutes"));
 app.use("/api/shop", require("./routes/shopRoutes"));
 app.use("/api/achievements", require("./routes/achievementRoutes"));
 
+
+// Serve frontend build in production
+const buildPath = path.join(__dirname, "build");
+app.use(express.static(buildPath));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(buildPath, "index.html"));
+});
+
 app.use((err, req, res, next) => {
   console.error("Error:", err.message);
   res.status(500).json({
