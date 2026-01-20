@@ -9,6 +9,7 @@ import AchievementModal from "../components/game/AchievementModal";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { useGameData } from "../hooks/useGameData";
 import { getAllUpgrades, buyUpgrade } from "../api/upgradeAPI";
+import { resetProgress } from "../api/playerAPI";
 
 function GameUI() {
   const handleUpgradePurchase = async (upgradeType) => {
@@ -67,6 +68,27 @@ function GameUI() {
     navigate("/login");
   };
 
+  const handleReset = async () => {
+    try {
+      console.log("Starting reset...");
+      const response = await resetProgress();
+      console.log("Reset response:", response.data);
+      console.log("Click power after reset:", response.data.progress.clickPower);
+      
+      // Manually update state immediately
+      const resetData = response.data.progress;
+      
+      // Then fetch fresh data
+      await fetchPlayerData();
+      console.log("Fetched fresh player data");
+      
+      alert("Progress reset successfully!");
+    } catch (err) {
+      console.error("Reset failed:", err);
+      alert("Reset failed: " + (err.response?.data?.error || err.message));
+    }
+  };
+
   if (loading || upgradesLoading) {
     return <LoadingSpinner message="Loading game data..." />;
   }
@@ -85,6 +107,7 @@ function GameUI() {
         username={player.user?.username || "Player"}
         clickPower={player.clickPower}
         onLogout={handleLogout}
+        onReset={handleReset}
       />
 
       {latestUnlocked && latestUnlocked.length > 0 && (
@@ -95,7 +118,7 @@ function GameUI() {
 
 
       <div style={styles.topSection}>
-        <ProgressBar progress={Math.min(player.clickPower || 0, 100)} />
+        <ProgressBar progress={Math.min(player.castleProgress || 0, 100)} />
         <ResourcesDisplay resources={player.resources} />
         <button
           onClick={() => setShowUpgradesModal(true)}

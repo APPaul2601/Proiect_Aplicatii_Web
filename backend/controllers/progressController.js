@@ -249,3 +249,51 @@ exports.buyUpgrade = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.resetProgress = async (req, res) => {
+  try {
+    const userId = req.userId;
+    console.log("Resetting progress for user:", userId);
+
+    const progress = await Progress.findOne({ user: userId });
+
+    if (!progress) {
+      return res.status(404).json({ error: "Progress not found" });
+    }
+
+    // Reset all progress
+    progress.castleProgress = 0;
+    progress.castleStage = 1;
+    progress.castleCompleted = false;
+    progress.clickPower = 1;
+    progress.resources = {
+      gold: 0,
+      wood: 0,
+      stone: 0,
+      wheat: 0,
+    };
+    progress.upgrades = [];
+    progress.unlockedUpgrades = ["sharper_sword", "stronger_swing"];
+    progress.totalClicks = 0;
+
+    const savedProgress = await progress.save();
+    console.log("Progress saved:", savedProgress);
+
+    // Also reset achievements
+    const Achievement = require("../models/game/Achievement");
+    const deleteResult = await Achievement.findOneAndDelete({ user: userId });
+    console.log("Achievement deleted:", deleteResult);
+
+    // Fetch the updated progress with user data
+    const updatedProgress = await Progress.findOne({ user: userId }).populate("user", "username");
+
+    res.json({
+      success: true,
+      message: "Progress reset successfully",
+      progress: updatedProgress,
+    });
+  } catch (err) {
+    console.error("resetProgress error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+};

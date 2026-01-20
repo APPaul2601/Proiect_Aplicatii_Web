@@ -26,7 +26,22 @@ export const clickCastle = async () => {
   );
 };
 
+export const resetProgress = async () => {
+  const token = localStorage.getItem("token");
+
+  return axios.post(
+    `${API_BASE}/castle/reset`,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+};
+
 export default {
   getPlayerData,
   clickCastle,
+  resetProgress,
 };

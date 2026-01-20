@@ -1,6 +1,12 @@
 import React from "react";
 
-const Header = ({ username, clickPower, onLogout }) => {
+const Header = ({ username, clickPower, onLogout, onReset }) => {
+  const handleReset = () => {
+    if (window.confirm("Are you sure you want to reset your progress? This cannot be undone!")) {
+      onReset();
+    }
+  };
+
   return (
     <div
       style={{
@@ -51,31 +57,58 @@ const Header = ({ username, clickPower, onLogout }) => {
           </span>
         </p>
       </div>
-      <button
-        onClick={onLogout}
-        style={{
-          padding: "6px 12px",
-          backgroundColor: "#c0392b",
-          color: "#FFD700",
-          border: "2px solid #FFD700",
-          cursor: "pointer",
-          fontWeight: "bold",
-          fontSize: "8px",
-          fontFamily: "'Press Start 2P', cursive, sans-serif",
-          letterSpacing: "0.5px",
-          transition: "all 0.2s ease",
-        }}
-        onMouseEnter={(e) => {
-          e.target.style.transform = "scale(1.05)";
-          e.target.style.boxShadow = "0 0 10px rgba(255, 215, 0, 0.5)";
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.transform = "scale(1)";
-          e.target.style.boxShadow = "none";
-        }}
-      >
-        Logout
-      </button>
+      <div style={{ display: "flex", gap: "10px" }}>
+        <button
+          onClick={handleReset}
+          style={{
+            padding: "6px 12px",
+            backgroundColor: "#f39c12",
+            color: "#FFD700",
+            border: "2px solid #FFD700",
+            cursor: "pointer",
+            fontWeight: "bold",
+            fontSize: "8px",
+            fontFamily: "'Press Start 2P', cursive, sans-serif",
+            letterSpacing: "0.5px",
+            transition: "all 0.2s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = "scale(1.05)";
+            e.target.style.boxShadow = "0 0 10px rgba(255, 215, 0, 0.5)";
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = "scale(1)";
+            e.target.style.boxShadow = "none";
+          }}
+        >
+          Reset
+        </button>
+        <button
+          onClick={onLogout}
+          style={{
+            padding: "6px 12px",
+            backgroundColor: "#c0392b",
+            color: "#FFD700",
+            border: "2px solid #FFD700",
+            cursor: "pointer",
+            fontWeight: "bold",
+            fontSize: "8px",
+            fontFamily: "'Press Start 2P', cursive, sans-serif",
+            letterSpacing: "0.5px",
+            transition: "all 0.2s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = "scale(1.05)";
+            e.target.style.boxShadow = "0 0 10px rgba(255, 215, 0, 0.5)";
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = "scale(1)";
+            e.target.style.boxShadow = "none";
+          }}
+        >
+          Logout
+        </button>
+      </div>
     </div>
   );
 };

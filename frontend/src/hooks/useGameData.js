@@ -15,9 +15,11 @@ export const useGameData = () => {
       setError(null);
       const response = await getPlayerData();
       const progress = response.data.progress;
+      console.log("Fetched player data, clickPower:", progress.clickPower);
       const unlocked = (progress && progress.unlockedUpgrades) || [];
       setPrevUnlocked(unlocked);
       setPlayer(progress);
+      console.log("Player state updated");
       
       // Extract achievements from response if available
       if (response.data.unlockedAchievements) {

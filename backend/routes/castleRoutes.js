@@ -4,6 +4,7 @@ const {
   getProgress,
   clickCastle,
   buyUpgrade,
+  resetProgress,
 } = require("../controllers/progressController");
 const authMiddleware = require("../middleware/authMiddleware");
 
@@ -13,5 +14,6 @@ router.post("/click", authMiddleware, clickCastle);
 
 router.post("/buy-upgrade", authMiddleware, buyUpgrade);
 
+router.post("/reset", authMiddleware, resetProgress);
 
 module.exports = router;
