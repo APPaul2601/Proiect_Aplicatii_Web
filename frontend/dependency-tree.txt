@@ -1,0 +1,1 @@
+Please see the output of `npm ls --all --depth=2` for your frontend dependencies. If you want to check for specific subdependency versions or issues, open the generated dependency-tree.txt file in your project root. If you need a summary or want to check for a particular package, let me know!
